@@ -1,0 +1,84 @@
+{
+	"common": {
+		"name": "emporia",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "Emporia",
+		"titleLang": {
+			"en": "Emporia",
+			"de": "Emporien",
+			"ru": "Эмпория",
+			"pt": "Emporia",
+			"nl": "Emporia",
+			"fr": "Emporia",
+			"it": "Imperia",
+			"es": "Emporia",
+			"pl": "Emporia",
+			"zh-cn": "恩波利亚"
+		},
+		"desc": {
+			"en": "retrieves data from emporia energy system",
+			"de": "ruft Daten aus dem emporia Energiesystem ab",
+			"ru": "извлекает данные из энергетической системы emporia",
+			"pt": "recupera dados do sistema de energia emporia",
+			"nl": "haalt gegevens op uit het energiesysteem van emporia",
+			"fr": "récupère les données du système d'énergie emporia",
+			"it": "recupera i dati dal sistema energetico emporia",
+			"es": "recupera datos del sistema de energía emporia",
+			"pl": "pobiera dane z systemu energetycznego emporia",
+			"zh-cn": "从 emporia 能源系统中检索数据"
+		},
+		"authors": [
+			"Chris <besterquester@live.at>"
+		],
+		"keywords": [
+			"power consumption",
+			"energy monitor"
+		],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "emporia.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/Chris1965/ioBroker.emporia/main/admin/emporia.png",
+		"readme": "https://github.com/Chris1965/ioBroker.emporia/blob/main/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "energy",
+		"compact": true,
+		"connectionType": "cloud",
+		"dataSource": "poll",
+		"adminUI": {
+			"config": "materialize"
+		},
+		"dependencies": [
+			{
+				"js-controller": ">=3.3.22"
+			}
+		],
+		"globalDependencies": [
+			{
+				"admin": ">=5.0.0"
+			}
+		]
+	},
+	"native": {
+		"option1": true,
+		"option2": "42"
+	},
+	"objects": [],
+	"instanceObjects": []
+}
