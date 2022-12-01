@@ -1,5 +1,7 @@
 "use strict";
 
+const EmVue = require("./EmVue.js");
+
 /*
  * Created with @iobroker/create-adapter v2.3.0
  */
@@ -33,7 +35,7 @@ class Emporia extends utils.Adapter {
 	 */
 	async onReady() {
 		// Initialize your adapter here
-
+		let emVue = new EmVue();
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
 		this.log.info("config option1: " + this.config.option1);
