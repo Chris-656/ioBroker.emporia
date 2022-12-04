@@ -16,9 +16,6 @@
     "type": "git",
     "url": "https://github.com/Chris1965/ioBroker.emporia.git"
   },
-  "engines": {
-    "node": ">= 14"
-  },
   "dependencies": {
     "@iobroker/adapter-core": "^2.6.7",
     "amazon-cognito-identity-js-node": "^0.0.3",

@@ -75,10 +75,26 @@
 			}
 		]
 	},
+	"encryptedNative": [
+		"password"
+	],
+	"protectedNative": [
+		"password"
+	],
 	"native": {
+		"refresh": 5,
 		"option1": true,
 		"option2": "42"
 	},
 	"objects": [],
-	"instanceObjects": []
+	"instanceObjects": [
+		{
+			"_id": "devices",
+			"type": "channel",
+			"common": {
+				"name": "devices"
+			},
+			"native": {}
+		}
+	]
 }

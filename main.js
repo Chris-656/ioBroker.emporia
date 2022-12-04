@@ -7,11 +7,11 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
-const EmVue = require("./EmVue.js");
 
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
+const EmVue = require("./lib/EmVue.js");
 
 class Emporia extends utils.Adapter {
 
@@ -23,11 +23,15 @@ class Emporia extends utils.Adapter {
 			...options,
 			name: "emporia",
 		});
+
 		this.on("ready", this.onReady.bind(this));
 		this.on("stateChange", this.onStateChange.bind(this));
 		// this.on("objectChange", this.onObjectChange.bind(this));
 		// this.on("message", this.onMessage.bind(this));
 		this.on("unload", this.onUnload.bind(this));
+
+		this.updateInterval = null;
+		this.emVue = new EmVue();
 	}
 
 	/**
@@ -35,62 +39,108 @@ class Emporia extends utils.Adapter {
 	 */
 	async onReady() {
 		// Initialize your adapter here
-		const emVue = new EmVue();
-		this.log.info("vor login");
-		emVue.login();
-		this.log.info("nach");
+		this.emVue.login();
+		await this.createTokenStates(this.emVue.userCred);
+		this.log.info(`Username:${this.emVue.userCred.Username} ClientID:${this.emVue.userCred.ClientId}`);
 
-		// The adapters config (in the instance object everything under the attribute "native") is accessible via
-		// this.config:
-		this.log.info("config option1: " + this.config.option1);
-		this.log.info("config option2: " + this.config.option2);
+		let res = await this.emVue.getEmpCustomer();
+		if (res) {
+			this.setState("info.connection", true, true);
+			await this.createCustomerStates(this.emVue.customer);
+		} else {
+			this.setState("info.connection", false, true);
+		}
+		res = await this.emVue.getEmpDevices();
+		if (res)
+			await this.createDeviceStates(this.emVue.devices);
 
-		/*
-		For every state in the system there has to be also an object of type state
-		Here a simple template for a boolean variable named "testVariable"
-		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-		*/
-		await this.setObjectNotExistsAsync("testVariable", {
-			type: "state",
-			common: {
-				name: "testVariable",
-				type: "boolean",
-				role: "indicator",
-				read: true,
-				write: true,
-			},
-			native: {},
-		});
+		this.updateInterval = setInterval(() => {
+			this.log.info("getting UsageList");
+			this.emVue.getEmpDeviceListUsage();
+			if (this.emVue.devices.usage) {
+				this.createUsageStates(this.emVue.devices);
+			}
+
+		}, this.config.refresh * 1000);
+
 
 		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
 		this.subscribeStates("testVariable");
-		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-		// this.subscribeStates("lights.*");
-		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-		// this.subscribeStates("*");
-
-		/*
-			setState examples
-			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync("testVariable", true);
-
-		// same thing, but the value is flagged "ack"
-		// ack should be always set to true if the value is received from or acknowledged from the target system
-		await this.setStateAsync("testVariable", { val: true, ack: true });
-
-		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		await this.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
 
 		// examples for the checkPassword/checkGroup functions
-		let result = await this.checkPasswordAsync("admin", "iobroker");
-		this.log.info("check user admin pw iobroker: " + result);
+		// let result = await this.checkPasswordAsync("admin", "iobroker");
+		// this.log.info("check user admin pw iobroker: " + result);
 
-		result = await this.checkGroupAsync("admin", "admin");
-		this.log.info("check group user admin group admin: " + result);
+		// result = await this.checkGroupAsync("admin", "admin");
+		// this.log.info("check group user admin group admin: " + result);
+	}
+	async createUsageStates(devices) {
+		devices.usage.forEach(device => {
+			const name =this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
+			device.channelUsages.forEach(channel => {
+				this.setObjectNotExistsAsync(`usage.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "name", read: true, write: false }, native: {}, });
+				this.setState(`usage.${name}.${channel.name}`, channel.usageKW, true, true);
+
+				console.log(`    ${channel.name}: ${channel.usageKW}`);
+			});
+		});
+
 	}
 
+	async createTokenStates(credentials) {
+		this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setState(`tokens.accessToken`, credentials.AccessToken, true, true);
+
+		this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setState(`tokens.idToken`, credentials.IdToken, true, true);
+
+		this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setState(`tokens.refreshToken`, credentials.RefreshToken, true, true);
+	}
+
+	async createCustomerStates(customer) {
+
+		this.setObjectNotExistsAsync(`customer.firstName`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setState(`customer.firstName`, customer.firstName, true, true);
+
+		this.setObjectNotExistsAsync(`customer.lastName`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setState(`customer.lastName`, customer.lastName, true, true);
+
+		this.setObjectNotExistsAsync(`customer.email`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setState(`customer.email`, customer.email, true, true);
+
+		this.setObjectNotExistsAsync(`customer.customerGid`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setState(`customer.customerGid`, customer.customerGid, true, true);
+
+		this.setObjectNotExistsAsync(`customer.createdAt`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setState(`customer.createdAt`, customer.createdAt, true, true);
+
+	}
+
+	async createDeviceStates(devices) {
+		devices.list.forEach(dev => {
+
+			this.log.info(dev.locationProperties.deviceName);
+			const id = `devices.${dev.locationProperties.deviceName}`;
+
+			this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setState(id + ".model", dev.model, true, true);
+
+			this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setState(id + ".firmware", dev.firmware, true, true);
+
+			this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setState(id + ".deviceGid", dev.deviceGid, true, true);
+
+			this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setState(id + ".timeZone", dev.locationProperties.timeZone, true, true);
+
+			this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHours, true, true);
+		});
+
+
+	}
 	/**
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
 	 * @param {() => void} callback
