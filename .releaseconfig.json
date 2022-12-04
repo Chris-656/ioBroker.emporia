@@ -6,6 +6,7 @@
 	"plugins": [
 		"iobroker",
 		"license",
-		"manual-review"
+		"manual-review",
+		"changelog"
 	]
 }
