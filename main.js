@@ -1,7 +1,5 @@
 "use strict";
 
-const EmVue = require("./EmVue.js");
-
 /*
  * Created with @iobroker/create-adapter v2.3.0
  */
@@ -9,6 +7,8 @@ const EmVue = require("./EmVue.js");
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
+const EmVue = require("./EmVue.js");
+
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -35,7 +35,11 @@ class Emporia extends utils.Adapter {
 	 */
 	async onReady() {
 		// Initialize your adapter here
-		let emVue = new EmVue();
+		const emVue = new EmVue();
+		this.log.info("vor login");
+		emVue.login();
+		this.log.info("nach");
+
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
 		this.log.info("config option1: " + this.config.option1);
