@@ -12,3 +12,4 @@ This adapter ....
 -->
 
 ### **WORK IN PROGRESS**
+- initial version
