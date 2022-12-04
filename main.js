@@ -81,7 +81,7 @@ class Emporia extends utils.Adapter {
 				this.setObjectNotExistsAsync(`usage.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "name", read: true, write: false }, native: {}, });
 				this.setState(`usage.${name}.${channel.name}`, channel.usageKW, true, true);
 
-				console.log(`    ${channel.name}: ${channel.usageKW}`);
+				//console.log(`    ${channel.name}: ${channel.usageKW}`);
 			});
 		});
 
