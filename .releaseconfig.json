@@ -1,6 +1,6 @@
 {
 	"dry": true,
-    "verbose":false,
+    "verbose":true,
     "yes":true,
     "addPlaceholder":true,
 	"plugins": [
