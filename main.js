@@ -34,13 +34,21 @@ class Emporia extends utils.Adapter {
 		this.emVue = new EmVue();
 	}
 
+	async getTokenStates(){
+		const accessToken = await this.getStateAsync("tokens.accessToken");
+		const idToken = await this.getStateAsync("tokens.accessToken");
+		const refreshToken = await this.getStateAsync("tokens.accessToken");
+		if (accessToken) this.emVue.userCred.AccessToken = accessToken.val;
+		if (idToken) this.emVue.userCred.AccessToken = idToken.val;
+		if (refreshToken) this.emVue.userCred.AccessToken = refreshToken.val;
+	}
+
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
 		// Initialize your adapter here
-		this.emVue.login();
-		await this.createTokenStates(this.emVue.userCred);
+		this.emVue.login(this);
 		this.log.info(`Username:${this.emVue.userCred.Username} ClientID:${this.emVue.userCred.ClientId}`);
 
 		let res = await this.emVue.getEmpCustomer();

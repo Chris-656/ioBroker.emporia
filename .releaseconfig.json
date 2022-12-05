@@ -1,6 +1,7 @@
 {
 	"dry": false,
     "verbose":true,
+	"addPlaceholder":true,
 	"plugins": [
 		"iobroker",
 		"license",
