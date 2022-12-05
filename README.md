@@ -11,6 +11,7 @@ This adapter ....
   ### **WORK IN PROGRESS**
 -->
 ### **WORK IN PROGRESS**
+- Feat: minor bug fixes
 
 ### 0.0.3 (2022-12-05)
  - Maint: Changed User Credentials
