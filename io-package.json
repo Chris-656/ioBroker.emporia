@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "news": {
+      "0.0.3": {
+        "en": "Maint: Changed User Credentials",
+        "de": "Maint: Änderte Benutzerinformationen",
+        "ru": "Maint: Измененные кандидаты пользователей",
+        "pt": "Maint: Credenciais do usuário alterados",
+        "nl": "Veranderde User Credential",
+        "fr": "Titre : Vérification des pouvoirs des utilisateurs modifiés",
+        "it": "Maint: Cambiate le credenziali utente",
+        "es": "Maint: Cambio de credenciales de usuario",
+        "pl": "Oficjalna strona Changed User Credentials",
+        "uk": "Головна: Змінені облікові дані користувачів",
+        "zh-cn": "主要机构:更改用户全权证书"
+      },
       "0.0.2": {
         "en": "initial version",
         "de": "erstausführung",
