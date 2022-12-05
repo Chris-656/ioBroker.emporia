@@ -11,7 +11,7 @@ This adapter ....
   ### **WORK IN PROGRESS**
 -->
  ### **WORK IN PROGRESS**
- - Maint: CHnaged Usercredentials
+ - Maint: Changed User Credentials
 
 ### 0.0.2 (2022-12-04)
 - initial version
