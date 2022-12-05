@@ -34,46 +34,44 @@ class Emporia extends utils.Adapter {
 		this.emVue = new EmVue();
 	}
 
-	async getTokenStates(){
-		const accessToken = await this.getStateAsync("tokens.accessToken");
-		const idToken = await this.getStateAsync("tokens.accessToken");
-		const refreshToken = await this.getStateAsync("tokens.accessToken");
-		if (accessToken) this.emVue.userCred.AccessToken = accessToken.val;
-		if (idToken) this.emVue.userCred.AccessToken = idToken.val;
-		if (refreshToken) this.emVue.userCred.AccessToken = refreshToken.val;
-	}
+
 
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
 		// Initialize your adapter here
-		this.emVue.login(this);
-		this.log.info(`Username:${this.emVue.userCred.Username} ClientID:${this.emVue.userCred.ClientId}`);
+		const tokens = await this.getTokenStates();
+		if (tokens) {
+			this.emVue.tokens = tokens;
+			this.log.info(`Tokens retrieved!`);
+		}
+		const loginSuccessfull = await this.emVue.login(this.config.user, this.config.password);
+		if (loginSuccessfull) {
+			this.createTokenStates(this.emVue.tokens);
+			this.log.info(`Username:${this.config.user} logged in`);
+		}
 
 		let res = await this.emVue.getEmpCustomer();
+		this.createTokenStates(this.emVue.tokens);
+
 		if (res) {
+			this.createCustomerStates(this.emVue.customer);
 			this.setState("info.connection", true, true);
-			await this.createCustomerStates(this.emVue.customer);
 		} else {
 			this.setState("info.connection", false, true);
 		}
+
 		res = await this.emVue.getEmpDevices();
-		if (res)
-			await this.createDeviceStates(this.emVue.devices);
-
+		if (res) {
+			this.createDeviceStates(this.emVue.devices);
+		}
 		this.updateInterval = setInterval(() => {
-			this.log.info("getting UsageList");
-			this.emVue.getEmpDeviceListUsage();
-			if (this.emVue.devices.usage) {
-				this.createUsageStates(this.emVue.devices);
-			}
-
+			this.showUsage();
 		}, this.config.refresh * 1000);
 
-
 		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates("testVariable");
+		//this.subscribeStates("testVariable");
 
 		// examples for the checkPassword/checkGroup functions
 		// let result = await this.checkPasswordAsync("admin", "iobroker");
@@ -82,17 +80,35 @@ class Emporia extends utils.Adapter {
 		// result = await this.checkGroupAsync("admin", "admin");
 		// this.log.info("check group user admin group admin: " + result);
 	}
+
 	async createUsageStates(devices) {
 		devices.usage.forEach(device => {
-			const name =this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
+			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 			device.channelUsages.forEach(channel => {
 				this.setObjectNotExistsAsync(`usage.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "name", read: true, write: false }, native: {}, });
 				this.setState(`usage.${name}.${channel.name}`, channel.usageKW, true, true);
-
-				//console.log(`    ${channel.name}: ${channel.usageKW}`);
 			});
 		});
 
+	}
+	async getTokenStates() {
+		const tokens = {};
+
+		const accessToken = await this.getStateAsync("tokens.accessToken");
+		const idToken = await this.getStateAsync("tokens.idToken");
+		const refreshToken = await this.getStateAsync("tokens.refreshToken");
+		if (accessToken) tokens.AccessToken = accessToken.val;
+		if (idToken) tokens.IdToken = idToken.val;
+		if (refreshToken) tokens.RefreshToken = refreshToken.val;
+		return tokens;
+	}
+
+	async showUsage() {
+		this.log.info("getting devices power usage");
+		await this.emVue.getEmpDeviceListUsage();
+		if (this.emVue.devices.usage) {
+			this.createUsageStates(this.emVue.devices);
+		}
 	}
 
 	async createTokenStates(credentials) {
@@ -125,10 +141,11 @@ class Emporia extends utils.Adapter {
 
 	}
 
-	async createDeviceStates(devices) {
+	createDeviceStates(devices) {
 		devices.list.forEach(dev => {
 
-			this.log.info(dev.locationProperties.deviceName);
+			//this.log.info(dev.locationProperties.deviceName);
+
 			const id = `devices.${dev.locationProperties.deviceName}`;
 
 			this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
@@ -160,7 +177,10 @@ class Emporia extends utils.Adapter {
 			// clearTimeout(timeout2);
 			// ...
 			// clearInterval(interval1);
-
+			if (this.updateInterval) {
+				clearInterval(this.updateInterval);
+				this.updateInterval = null;
+			}
 			callback();
 		} catch (e) {
 			callback();

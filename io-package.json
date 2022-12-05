@@ -108,6 +108,8 @@
     "password"
   ],
   "native": {
+    "user": "",
+    "password": "",
     "refresh": 5,
     "option1": true,
     "option2": "42"

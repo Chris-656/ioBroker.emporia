@@ -10,6 +10,8 @@ This adapter ....
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
 ### 0.0.3 (2022-12-05)
  - Maint: Changed User Credentials
 
