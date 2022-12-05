@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "news": {
+      "0.0.4": {
+        "en": "Feat: minor bug fixes",
+        "de": "Feat: kleinere Fehlerbehebungen",
+        "ru": "Feat: мелкие исправления ошибок",
+        "pt": "Feat: pequenas correções de bugs",
+        "nl": "Feat:",
+        "fr": "Feat: corrections de bug mineur",
+        "it": "Tariffa: correzioni di bug minori",
+        "es": "Carne: correcciones de fallo menores",
+        "pl": "Feat: drobny błąd naprawiający",
+        "uk": "Feat: незначні виправлення помилок",
+        "zh-cn": "费:小软弱"
+      },
       "0.0.3": {
         "en": "Maint: Changed User Credentials",
         "de": "Maint: Änderte Benutzerinformationen",
