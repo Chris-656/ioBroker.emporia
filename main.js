@@ -41,22 +41,27 @@ class Emporia extends utils.Adapter {
 	 */
 	async onReady() {
 		// Initialize your adapter here
-		const tokens = await this.getTokenStates();
-		if (tokens) {
-			this.emVue.tokens = tokens;
-			this.log.info(`Tokens retrieved!`);
-		}
-		const loginSuccessfull = await this.emVue.login(this.config.user, this.config.password);
-		if (loginSuccessfull) {
-			this.createTokenStates(this.emVue.tokens);
-			this.log.info(`Username:${this.config.user} logged in`);
+		// const tokens = await this.getTokenStates();
+		// if (tokens) {
+		// 	this.emVue.tokens = tokens;
+		// 	this.log.info(`Tokens retrieved!`);
+		// }else {
+		// 	this.log.info(`no Tokens get new ones!`);
+		// }
+
+		const login = await this.emVue.login(this.config.user, this.config.password);
+		this.log.info(`Login with user:${this.config.user}`);
+
+		if (login) {
+			this.updateTokenStates(this.emVue.tokens);
 		}
 
 		let res = await this.emVue.getEmpCustomer();
-		this.createTokenStates(this.emVue.tokens);
 
 		if (res) {
+			this.updateTokenStates(this.emVue.tokens);
 			this.createCustomerStates(this.emVue.customer);
+			this.log.info(`Username:${this.config.user} logged in`);
 			this.setState("info.connection", true, true);
 		} else {
 			this.setState("info.connection", false, true);
@@ -73,19 +78,13 @@ class Emporia extends utils.Adapter {
 		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
 		//this.subscribeStates("testVariable");
 
-		// examples for the checkPassword/checkGroup functions
-		// let result = await this.checkPasswordAsync("admin", "iobroker");
-		// this.log.info("check user admin pw iobroker: " + result);
-
-		// result = await this.checkGroupAsync("admin", "admin");
-		// this.log.info("check group user admin group admin: " + result);
 	}
 
 	async createUsageStates(devices) {
 		devices.usage.forEach(device => {
 			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 			device.channelUsages.forEach(channel => {
-				this.setObjectNotExistsAsync(`usage.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "name", read: true, write: false }, native: {}, });
+				this.setObjectNotExistsAsync(`usage.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
 				this.setState(`usage.${name}.${channel.name}`, channel.usageKW, true, true);
 			});
 		});
@@ -104,39 +103,41 @@ class Emporia extends utils.Adapter {
 	}
 
 	async showUsage() {
-		this.log.info("getting devices power usage");
+		const usedDevices = this.emVue.devices.list.map(d => d.locationProperties.deviceName).join(",");
+		this.log.info(`getting usage for ${usedDevices}`);
+
 		await this.emVue.getEmpDeviceListUsage();
 		if (this.emVue.devices.usage) {
 			this.createUsageStates(this.emVue.devices);
 		}
 	}
 
-	async createTokenStates(credentials) {
-		this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+	async updateTokenStates(credentials) {
+		this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, });
 		this.setState(`tokens.accessToken`, credentials.AccessToken, true, true);
 
-		this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, });
 		this.setState(`tokens.idToken`, credentials.IdToken, true, true);
 
-		this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, });
 		this.setState(`tokens.refreshToken`, credentials.RefreshToken, true, true);
 	}
 
 	async createCustomerStates(customer) {
 
-		this.setObjectNotExistsAsync(`customer.firstName`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setObjectNotExistsAsync(`customer.firstName`, { type: "state", common: { name: "firstName", type: "string", role: "name", read: true, write: false }, native: {}, });
 		this.setState(`customer.firstName`, customer.firstName, true, true);
 
-		this.setObjectNotExistsAsync(`customer.lastName`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setObjectNotExistsAsync(`customer.lastName`, { type: "state", common: { name: "lastName", type: "string", role: "name ", read: true, write: false }, native: {}, });
 		this.setState(`customer.lastName`, customer.lastName, true, true);
 
-		this.setObjectNotExistsAsync(`customer.email`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setObjectNotExistsAsync(`customer.email`, { type: "state", common: { name: "email", type: "string", role: "text ", read: true, write: false }, native: {}, });
 		this.setState(`customer.email`, customer.email, true, true);
 
-		this.setObjectNotExistsAsync(`customer.customerGid`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setObjectNotExistsAsync(`customer.customerGid`, { type: "state", common: { name: "customerGid", type: "number", role: "name", read: true, write: false }, native: {}, });
 		this.setState(`customer.customerGid`, customer.customerGid, true, true);
 
-		this.setObjectNotExistsAsync(`customer.createdAt`, { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+		this.setObjectNotExistsAsync(`customer.createdAt`, { type: "state", common: { name: "createdAt", type: "string", role: "date", read: true, write: false }, native: {}, });
 		this.setState(`customer.createdAt`, customer.createdAt, true, true);
 
 	}
@@ -148,20 +149,22 @@ class Emporia extends utils.Adapter {
 
 			const id = `devices.${dev.locationProperties.deviceName}`;
 
-			this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, });
 			this.setState(id + ".model", dev.model, true, true);
 
-			this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, });
 			this.setState(id + ".firmware", dev.firmware, true, true);
 
-			this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, });
 			this.setState(id + ".deviceGid", dev.deviceGid, true, true);
 
-			this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
+			this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "date", read: true, write: false }, native: {}, });
 			this.setState(id + ".timeZone", dev.locationProperties.timeZone, true, true);
 
-			this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "firmware", type: "string", role: "name", read: true, write: false }, native: {}, });
-			this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHours, true, true);
+			if (dev.locationProperties.usageCentPerKwHours) {
+				this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "string", role: "name", read: true, write: false }, native: {}, });
+				this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHours, true, true);
+			}
 		});
 
 

@@ -10,6 +10,10 @@ This adapter ....
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+- Updated user credentials and retrieve token if not available
+- min or bug fixes
+
 ### 0.0.4 (2022-12-05)
 - Feat: minor bug fixes
 
