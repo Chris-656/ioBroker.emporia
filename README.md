@@ -18,7 +18,7 @@ Used the API documentation from  https://github.com/magico13/PyEmVue/blob/master
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.0.6 (2022-12-07)
 - refresh time updated
 - possibility to change the output units to kW or Watt
 - state for activating or deactivating the retrieval

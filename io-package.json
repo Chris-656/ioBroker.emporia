@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "news": {
+      "0.0.6": {
+        "en": "refresh time updated\npossibility to change the output units to kW or Watt\nstate for activating or deactivating the retrieval",
+        "de": "aktualisierte zeit\nmöglichkeit, die Ausgabeeinheiten auf kW oder Watt zu ändern\nzustand zum aktivieren oder deaktivieren des retrievals",
+        "ru": "обновленное время\nвозможность изменения выходных единиц на кВт или Вт\nсостояние для активации или деактивации восстановления",
+        "pt": "tempo de atualização atualizado\npossibilidade de mudar as unidades de saída para kW ou Watt\nestado para ativar ou desativar a recuperação",
+        "nl": "verfrissende tijd\nde mogelijkheid om de uitgangsteams te veranderen in KW of Watt\nde staat om te activeren of te deactiveren",
+        "fr": "actualisé\npossibilité de changer les unités de sortie en kW ou Watt\nétat pour activer ou désactiver la récupération",
+        "it": "tempo di aggiornamento aggiornato\npossibilità di cambiare le unità di uscita a kW o Watt\nstato per attivare o disattivare il recupero",
+        "es": "tiempo de actualización actualizado\nposibilidad de cambiar las unidades de salida a kW o Watt\nestado para activar o desactivar la recuperación",
+        "pl": "czas aktualizacji\nmożliwa jest zmiana jednostek wyjściowych na kW lub Watt\npaństwo do aktywacji lub dezaktywacji",
+        "uk": "час оновлення\nможливість змінити вихідні одиниці до кВт або Вт\nстан активізації або деактивації",
+        "zh-cn": "更新的时间\n改变产出单位改变千瓦或瓦塔的可能性\na. 挑动或改变重塑状态"
+      },
       "0.0.5": {
         "en": "Updated user credentials and retrieve token if not available\nmin or bug fixes",
         "de": "Aktualisierte Benutzerberechtigungen und Abrufen von Token, wenn nicht verfügbar\nmin oder bugfixes",
@@ -137,7 +150,7 @@
     "user": "",
     "password": "",
     "refresh": 5,
-    "unitoutput":1,
+    "unitoutput": 1,
     "option1": true,
     "option2": "42"
   },
