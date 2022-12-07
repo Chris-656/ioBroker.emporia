@@ -137,6 +137,7 @@
     "user": "",
     "password": "",
     "refresh": 5,
+    "unitoutput":1,
     "option1": true,
     "option2": "42"
   },

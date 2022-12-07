@@ -7,7 +7,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
-
+let busy = false;
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -82,6 +82,7 @@ class Emporia extends utils.Adapter {
 
 	async createUsageStates(devices) {
 		devices.usage.forEach(device => {
+
 			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 			device.channelUsages.forEach(channel => {
 				this.setObjectNotExistsAsync(`usage.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
@@ -103,12 +104,25 @@ class Emporia extends utils.Adapter {
 	}
 
 	async showUsage() {
-		const usedDevices = this.emVue.devices.list.map(d => d.locationProperties.deviceName).join(",");
-		this.log.info(`getting usage for ${usedDevices}`);
+		const deviceNames = this.emVue.devices.list.map(d => d.locationProperties.deviceName).join(",");
+		//const usedDevices = this.emVue.devices.list.map(d => d.locationProperties.deviceName);
+		// @ts-ignore
+		const isActivated = (await this.getStateAsync("devices.activated")).val;
 
-		await this.emVue.getEmpDeviceListUsage();
-		if (this.emVue.devices.usage) {
-			this.createUsageStates(this.emVue.devices);
+		if (isActivated && !busy) {
+			if (!busy) {
+				busy = true;
+				this.log.info(`getting usage for ${deviceNames} ${this.config.unitoutput}`);
+				await this.emVue.getEmpDeviceListUsage(this.config.unitoutput);
+				if (this.emVue.devices.usage) {
+					this.createUsageStates(this.emVue.devices);
+				}
+				busy = false;
+			} else {
+				this.log.info("retrieving data is not done  -> busy");
+			}
+		} else {
+			this.log.info("retrieving data is not active set the state activated under devices to true");
 		}
 	}
 
@@ -145,9 +159,10 @@ class Emporia extends utils.Adapter {
 	createDeviceStates(devices) {
 		devices.list.forEach(dev => {
 
-			//this.log.info(dev.locationProperties.deviceName);
-
 			const id = `devices.${dev.locationProperties.deviceName}`;
+
+			this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch", read: true, write: true }, native: {}, });
+			//this.setStateChanged(id + ".activated", true, true, true);
 
 			this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, });
 			this.setState(id + ".model", dev.model, true, true);

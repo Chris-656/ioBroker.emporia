@@ -9,6 +9,9 @@ Used the API documentation from  https://github.com/magico13/PyEmVue/blob/master
 ## Screen Shots
 <img src="admin/img/screenshot1.png" width="400">
 
+<img src="admin/img/screenshot2.png" width="400">
+
+
 ## Changelog
 - init user credentials
 <!--
@@ -17,6 +20,8 @@ Used the API documentation from  https://github.com/magico13/PyEmVue/blob/master
 -->
 ### **WORK IN PROGRESS**
 - refresh time updated
+- possibility to change the output units to kW or Watt
+- state for activating or deactivating the retrieval
 
 ### 0.0.5 (2022-12-06)
 - Updated user credentials and retrieve token if not available
