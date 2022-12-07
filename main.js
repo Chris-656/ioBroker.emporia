@@ -85,8 +85,8 @@ class Emporia extends utils.Adapter {
 
 			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 			device.channelUsages.forEach(channel => {
-				this.setObjectNotExistsAsync(`usage.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
-				this.setState(`usage.${name}.${channel.name}`, channel.usageKW, true, true);
+				this.setObjectNotExistsAsync(`usage.live.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
+				this.setState(`usage.live.${name}.${channel.name}`, channel.usageKW, true, true);
 			});
 		});
 
@@ -162,7 +162,11 @@ class Emporia extends utils.Adapter {
 			const id = `devices.${dev.locationProperties.deviceName}`;
 
 			this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch", read: true, write: true }, native: {}, });
-			//this.setStateChanged(id + ".activated", true, true, true);
+			this.getStateAsync("devices.activated").
+				then(state => {
+					if (!state || state.val === null)
+						this.setState("devices.activated", true, true, true);
+				});
 
 			this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, });
 			this.setState(id + ".model", dev.model, true, true);

@@ -95,16 +95,17 @@
       "zh-cn": "恩波利亚"
     },
     "desc": {
-      "en": "retrieves data from emporia energy system",
-      "de": "ruft Daten aus dem emporia Energiesystem ab",
-      "ru": "извлекает данные из энергетической системы emporia",
-      "pt": "recupera dados do sistema de energia emporia",
-      "nl": "haalt gegevens op uit het energiesysteem van emporia",
-      "fr": "récupère les données du système d'énergie emporia",
-      "it": "recupera i dati dal sistema energetico emporia",
-      "es": "recupera datos del sistema de energía emporia",
-      "pl": "pobiera dane z systemu energetycznego emporia",
-      "zh-cn": "从 emporia 能源系统中检索数据"
+      "en": "This adapter retrieves data from emporia vue2 system",
+      "de": "Dieser Adapter ruft Daten von emporia vue2 System ab",
+      "ru": "Этот адаптер извлекает данные из системы emporia vue2",
+      "pt": "Este adaptador recupera dados do sistema emporia vue2",
+      "nl": "Deze adapter haalt gegevens van emporia vue2 systeem",
+      "fr": "Cet adaptateur récupère les données du système emporia vue2",
+      "it": "Questo adattatore recupera i dati dal sistema emporia vue2",
+      "es": "Este adaptador recupera datos del sistema emporia vue2",
+      "pl": "Ten adapter odzyskuje dane z systemu emporia vue2",
+      "uk": "Цей адаптер отримує дані з системи emporia vue2",
+      "zh-cn": "这种适应者从堪培拉角系统检索数据"
     },
     "authors": [
       "Chris <besterquester@live.at>"
