@@ -187,7 +187,7 @@ class Emporia extends utils.Adapter {
 	}
 
 	createDeviceStates(devices) {
-		if (devices) {
+		if (devices && devices.list) {
 			devices.list.forEach(dev => {
 
 				const id = `devices.${dev.locationProperties.deviceName}`;
