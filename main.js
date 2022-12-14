@@ -170,7 +170,7 @@ class Emporia extends utils.Adapter {
 	async createCustomerStates(customer) {
 		if (customer) {
 			this.setObjectNotExistsAsync(`customer.firstName`, { type: "state", common: { name: "firstName", type: "string", role: "name", read: true, write: false }, native: {}, });
-			this.setState(`customer.firstName`, customer.firstName, true, true);
+			if (customer.firstName) this.setState(`customer.firstName`, customer.firstName, true, true);
 
 			this.setObjectNotExistsAsync(`customer.lastName`, { type: "state", common: { name: "lastName", type: "string", role: "name ", read: true, write: false }, native: {}, });
 			this.setState(`customer.lastName`, customer.lastName, true, true);
