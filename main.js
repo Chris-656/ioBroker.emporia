@@ -66,7 +66,7 @@ class Emporia extends utils.Adapter {
 			this.updateTokenStates(this.emVue.tokens);
 			this.createCustomerStates(this.emVue.customer);
 			this.log.info(`Username:${this.config.user} logged in`);
-			this.log.info(`Time yester ${moment().utc().subtract(1, "days").endOf("day").format()}`);
+			this.log.info(`Time yesterday ${moment().utc().subtract(1, "days").startOf("day").format()}`);
 			this.setState("info.connection", true, true);
 		} else {
 			this.setState("info.connection", false, true);
@@ -82,19 +82,20 @@ class Emporia extends utils.Adapter {
 			this.showUsage();
 		}, this.config.refresh * 1000);
 
-		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		//this.subscribeStates("testVariable");
-
 	}
 
-	async createUsageStates(devices, stateName="live") {
+	async createUsageStates(devices, stateName = "live") {
 
 		devices.forEach(device => {
 			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 			device.channelUsages.forEach(channel => {
+				//this.log.info(`name:${channel.name} usage:${channel.usage}  ${this.emVue.calcLiveKilowatt(channel.usage,,this.config.unitoutput)}`);
+				const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage,this.config.unitoutput) : channel.usage;
+
 				this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
-				this.setState(`usage.${stateName}.${name}.${channel.name}`, channel.usageKW, true, true);
+				this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true, true);
 			});
+			//this.log.info("  ");
 		});
 
 	}
@@ -113,17 +114,19 @@ class Emporia extends utils.Adapter {
 
 	initSchedule() {
 
-		const rndMinutes =  Math.floor(Math.random() * 59);		// Randomize the start of the schedule
+		const rndMinutes = Math.floor(Math.random() * 59);		// Randomize the start of the schedule
 		const rndHours = Math.floor(Math.random() * 2);
 		const schedule = `${rndMinutes} ${rndHours} * * *`;
-		//const schedule = `* * * * *`;
+		//const schedule = `20 * * * * *`;
 
 		this.log.info(`Schedule daily values. ${schedule}`);
 
 		this.schedule = mSchedule.scheduleJob(schedule, async () => {
-			const dayUsage = await this.emVue.getEmpDayUsage();
-			this.log.info(`schedule active : getting day power usage ${JSON.stringify(dayUsage)}`);
-			this.createUsageStates(dayUsage, "day");
+			const dayDeviceUsage = await this.emVue.getEmpDayUsage();
+			//this.log.info(JSON.stringify(dayDeviceUsage));
+			this.log.info(`instant:${dayDeviceUsage.instant} scale:${dayDeviceUsage.scale} unit:${dayDeviceUsage.energyUnit}`);
+
+			this.createUsageStates(dayDeviceUsage.devices, "day");
 		});
 
 	}
@@ -139,12 +142,10 @@ class Emporia extends utils.Adapter {
 				busy = true;
 				//this.log.info(`getting live power usage for ${deviceNames} `);
 				// eslint-disable-next-line prefer-const
-				let deviceUsage = await this.emVue.getEmpDeviceListUsage(this.config.unitoutput);
-				//this.log.info(`nach get ${JSON.stringify(deviceUsage)} `);
-				if (deviceUsage) {
-					//this.log.info(JSON.stringify(deviceUsage));
-					this.createUsageStates(deviceUsage);
-
+				let deviceListUsages = await this.emVue.getEmpDeviceListUsage();
+				if (deviceListUsages && deviceListUsages.devices) {
+					//this.log.info(JSON.stringify(`${(JSON.stringify(deviceListUsages))}`));
+					this.createUsageStates(deviceListUsages.devices);
 				}
 				busy = false;
 			} else {
