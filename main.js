@@ -93,7 +93,7 @@ class Emporia extends utils.Adapter {
 			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 			device.channelUsages.forEach(channel => {
 				this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
-				this.setState(`usage.${stateName}.${name}.${channel.name}`, channel.usage, true, true);
+				this.setState(`usage.${stateName}.${name}.${channel.name}`, channel.usageKW, true, true);
 			});
 		});
 
