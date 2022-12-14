@@ -7,6 +7,10 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
+const mSchedule = require("node-schedule");          // https://github.com/node-schedule/node-schedule
+const moment = require("moment");
+
+
 let busy = false;
 
 // Load your modules here, e.g.:
@@ -62,6 +66,7 @@ class Emporia extends utils.Adapter {
 			this.updateTokenStates(this.emVue.tokens);
 			this.createCustomerStates(this.emVue.customer);
 			this.log.info(`Username:${this.config.user} logged in`);
+			this.log.info(`Time yester ${moment().utc().subtract(1, "days").endOf("day").format()}`);
 			this.setState("info.connection", true, true);
 		} else {
 			this.setState("info.connection", false, true);
@@ -71,6 +76,8 @@ class Emporia extends utils.Adapter {
 		if (res) {
 			this.createDeviceStates(this.emVue.devices);
 		}
+
+		this.initSchedule();
 		this.updateInterval = setInterval(() => {
 			this.showUsage();
 		}, this.config.refresh * 1000);
@@ -80,17 +87,18 @@ class Emporia extends utils.Adapter {
 
 	}
 
-	async createUsageStates(devices) {
-		devices.usage.forEach(device => {
+	async createUsageStates(devices, stateName="live") {
 
+		devices.forEach(device => {
 			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 			device.channelUsages.forEach(channel => {
-				this.setObjectNotExistsAsync(`usage.live.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
-				this.setState(`usage.live.${name}.${channel.name}`, channel.usageKW, true, true);
+				this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
+				this.setState(`usage.${stateName}.${name}.${channel.name}`, channel.usage, true, true);
 			});
 		});
 
 	}
+
 	async getTokenStates() {
 		const tokens = {};
 
@@ -103,8 +111,25 @@ class Emporia extends utils.Adapter {
 		return tokens;
 	}
 
+	initSchedule() {
+
+		const rndMinutes =  Math.floor(Math.random() * 59);		// Randomize the start of the schedule
+		const rndHours = Math.floor(Math.random() * 2);
+		const schedule = `${rndMinutes} ${rndHours} * * *`;
+		//const schedule = `* * * * *`;
+
+		this.log.info(`Schedule daily values. ${schedule}`);
+
+		this.schedule = mSchedule.scheduleJob(schedule, async () => {
+			const dayUsage = await this.emVue.getEmpDayUsage();
+			this.log.info(`schedule active : getting day power usage ${JSON.stringify(dayUsage)}`);
+			this.createUsageStates(dayUsage, "day");
+		});
+
+	}
+
 	async showUsage() {
-		const deviceNames = this.emVue.devices.list.map(d => d.locationProperties.deviceName).join(",");
+		//const deviceNames = this.emVue.devices.list.map(d => d.locationProperties.deviceName).join(",");
 		//const usedDevices = this.emVue.devices.list.map(d => d.locationProperties.deviceName);
 		// @ts-ignore
 		const isActivated = (await this.getStateAsync("devices.activated")).val;
@@ -112,10 +137,14 @@ class Emporia extends utils.Adapter {
 		if (isActivated && !busy) {
 			if (!busy) {
 				busy = true;
-				this.log.info(`getting usage for ${deviceNames} ${this.config.unitoutput}`);
-				await this.emVue.getEmpDeviceListUsage(this.config.unitoutput);
-				if (this.emVue.devices.usage) {
-					this.createUsageStates(this.emVue.devices);
+				//this.log.info(`getting live power usage for ${deviceNames} `);
+				// eslint-disable-next-line prefer-const
+				let deviceUsage = await this.emVue.getEmpDeviceListUsage(this.config.unitoutput);
+				//this.log.info(`nach get ${JSON.stringify(deviceUsage)} `);
+				if (deviceUsage) {
+					//this.log.info(JSON.stringify(deviceUsage));
+					this.createUsageStates(deviceUsage);
+
 				}
 				busy = false;
 			} else {
@@ -202,6 +231,9 @@ class Emporia extends utils.Adapter {
 			if (this.updateInterval) {
 				clearInterval(this.updateInterval);
 				this.updateInterval = null;
+			}
+			if (this.schedule) {
+				this.schedule.cancel();
 			}
 			callback();
 		} catch (e) {
