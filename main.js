@@ -157,14 +157,16 @@ class Emporia extends utils.Adapter {
 	}
 
 	async updateTokenStates(credentials) {
-		this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-		this.setState(`tokens.accessToken`, credentials.AccessToken, true, true);
+		if (credentials) {
+			this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, });
+			this.setState(`tokens.accessToken`, credentials.AccessToken, true, true);
 
-		this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-		this.setState(`tokens.idToken`, credentials.IdToken, true, true);
+			this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, });
+			this.setState(`tokens.idToken`, credentials.IdToken, true, true);
 
-		this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-		this.setState(`tokens.refreshToken`, credentials.RefreshToken, true, true);
+			this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, });
+			this.setState(`tokens.refreshToken`, credentials.RefreshToken, true, true);
+		}
 	}
 
 	async createCustomerStates(customer) {
