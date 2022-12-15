@@ -8,8 +8,6 @@
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
 const mSchedule = require("node-schedule");          // https://github.com/node-schedule/node-schedule
-const moment = require("moment");
-
 
 let busy = false;
 
