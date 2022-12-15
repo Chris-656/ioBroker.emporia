@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "news": {
+      "0.0.7": {
+        "en": "added daily usage for monitoring\nchanged state structure",
+        "de": "zusätzliche tägliche nutzung für die überwachung\ngeänderte zustandsstruktur",
+        "ru": "добавлено ежедневное использование для мониторинга\nизменена структура государства",
+        "pt": "uso diário adicionado para monitoramento\nestrutura de estado alterada",
+        "nl": "voegde dagelijks gebruik toe voor monitoren\nveranderde staatsstructuur",
+        "fr": "utilisation quotidienne supplémentaire pour la surveillance\nmodification de la structure de l ' état",
+        "it": "uso quotidiano aggiunto per il monitoraggio\ncambiato struttura dello stato",
+        "es": "uso diario añadido para la vigilancia\ncambio de estructura estatal",
+        "pl": "dodać codzienne wykorzystanie monitorowania\nstruktura państwowa",
+        "uk": "додано щоденне використання для моніторингу\nзмінена структура стану",
+        "zh-cn": "监测日增\nb. 改变国家结构"
+      },
       "0.0.6": {
         "en": "refresh time updated\npossibility to change the output units to kW or Watt\nstate for activating or deactivating the retrieval",
         "de": "aktualisierte zeit\nmöglichkeit, die Ausgabeeinheiten auf kW oder Watt zu ändern\nzustand zum aktivieren oder deaktivieren des retrievals",
