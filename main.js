@@ -64,9 +64,9 @@ class Emporia extends utils.Adapter {
 
 		if (res) {
 			this.updateTokenStates(this.emVue.tokens);
+
 			this.createCustomerStates(this.emVue.customer);
 			this.log.info(`Username:${this.config.user} logged in`);
-			this.log.info(`Time yesterday ${moment().utc().subtract(1, "days").startOf("day").format()}`);
 			this.setState("info.connection", true, true);
 		} else {
 			this.setState("info.connection", false, true);
@@ -93,7 +93,7 @@ class Emporia extends utils.Adapter {
 				const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
 
 				this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
-				this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true, true);
+				this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
 			});
 			//this.log.info("  ");
 		});
@@ -156,35 +156,44 @@ class Emporia extends utils.Adapter {
 		}
 	}
 
-	async updateTokenStates(credentials) {
-		if (credentials) {
-			this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-			this.setState(`tokens.accessToken`, credentials.AccessToken, true, true);
+	updateTokenStates(credentials) {
+		try {
+			if (credentials) {
+				this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, });
+				this.setState(`tokens.accessToken`, credentials.AccessToken, true);
 
-			this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-			this.setState(`tokens.idToken`, credentials.IdToken, true, true);
+				this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, });
+				this.setState(`tokens.idToken`, credentials.IdToken, true);
 
-			this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-			this.setState(`tokens.refreshToken`, credentials.RefreshToken, true, true);
+				this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, });
+				this.setState(`tokens.refreshToken`, credentials.RefreshToken, true);
+			}
+		} catch (err) {
+			console.log(err);
 		}
 	}
 
-	async createCustomerStates(customer) {
-		if (customer) {
-			this.setObjectNotExistsAsync(`customer.firstName`, { type: "state", common: { name: "firstName", type: "string", role: "name", read: true, write: false }, native: {}, });
-			if (customer.firstName) this.setState(`customer.firstName`, customer.firstName, true, true);
+	createCustomerStates(customer) {
+		try {
+			if (customer) {
+				const queue = [
+					this.setObjectNotExistsAsync(`customer.firstName`, { type: "state", common: { name: "firstName", type: "string", role: "name", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(`customer.lastName`, { type: "state", common: { name: "lastName", type: "string", role: "name ", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(`customer.email`, { type: "state", common: { name: "email", type: "string", role: "text ", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(`customer.customerGid`, { type: "state", common: { name: "customerGid", type: "number", role: "name", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(`customer.createdAt`, { type: "state", common: { name: "createdAt", type: "string", role: "date", read: true, write: false }, native: {}, })
+				];
+				Promise.all(queue).then(() => {
+					this.setState(`customer.firstName`, customer.firstName, true);
+					this.setState(`customer.lastName`, customer.lastName, true);
+					this.setState(`customer.email`, customer.email, true);
+					this.setState(`customer.customerGid`, customer.customerGid, true);
+					this.setState(`customer.createdAt`, customer.createdAt, true);
 
-			this.setObjectNotExistsAsync(`customer.lastName`, { type: "state", common: { name: "lastName", type: "string", role: "name ", read: true, write: false }, native: {}, });
-			this.setState(`customer.lastName`, customer.lastName, true, true);
-
-			this.setObjectNotExistsAsync(`customer.email`, { type: "state", common: { name: "email", type: "string", role: "text ", read: true, write: false }, native: {}, });
-			this.setState(`customer.email`, customer.email, true, true);
-
-			this.setObjectNotExistsAsync(`customer.customerGid`, { type: "state", common: { name: "customerGid", type: "number", role: "name", read: true, write: false }, native: {}, });
-			this.setState(`customer.customerGid`, customer.customerGid, true, true);
-
-			this.setObjectNotExistsAsync(`customer.createdAt`, { type: "state", common: { name: "createdAt", type: "string", role: "date", read: true, write: false }, native: {}, });
-			this.setState(`customer.createdAt`, customer.createdAt, true, true);
+				});
+			}
+		} catch (err) {
+			console.log(err);
 		}
 	}
 
@@ -193,30 +202,29 @@ class Emporia extends utils.Adapter {
 			devices.list.forEach(dev => {
 
 				const id = `devices.${dev.locationProperties.deviceName}`;
+				const queue = [
+					this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch", read: true, write: true }, native: {}, }),
+					this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "date", read: true, write: false }, native: {}, })mSchedule					this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "string", role: "name", read: true, write: false }, native: {}, })
+				];
 
-				this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch", read: true, write: true }, native: {}, });
-				this.getStateAsync("devices.activated").
-					then(state => {
-						if (!state || state.val === null)
-							this.setState("devices.activated", true, true, true);
-					});
+				Promise.all(queue).then(() => {
+					this.getStateAsync("devices.activated").
+						then(state => {
+							if (!state || state.val === null)
+								this.setState("devices.activated", true, true);
+						});
 
-				this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, });
-				this.setState(id + ".model", dev.model, true, true);
-
-				this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, });
-				this.setState(id + ".firmware", dev.firmware, true, true);
-
-				this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, });
-				this.setState(id + ".deviceGid", dev.deviceGid, true, true);
-
-				this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "date", read: true, write: false }, native: {}, });
-				this.setState(id + ".timeZone", dev.locationProperties.timeZone, true, true);
-
-				if (dev.locationProperties.usageCentPerKwHours) {
-					this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "string", role: "name", read: true, write: false }, native: {}, });
-					this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHours, true, true);
-				}
+					this.setState(id + ".model", dev.model, true);
+					this.setState(id + ".firmware", dev.firmware, true);
+					this.setState(id + ".deviceGid", dev.deviceGid, true);
+					this.setState(id + ".timeZone", dev.locationProperties.timeZone, true);
+					if (dev.locationProperties.usageCentPerKwHours) {
+						this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHours, true);
+					}
+				});
 			});
 		}
 
