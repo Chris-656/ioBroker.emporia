@@ -162,7 +162,7 @@ class Emporia extends utils.Adapter {
 					this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, })
 				];
 
-				Promise.all(queue).then (()=>{
+				Promise.all(queue).then(() => {
 					this.setState(`tokens.accessToken`, credentials.AccessToken, true);
 					this.setState(`tokens.idToken`, credentials.IdToken, true);
 					this.setState(`tokens.refreshToken`, credentials.RefreshToken, true);
@@ -184,14 +184,18 @@ class Emporia extends utils.Adapter {
 					this.setObjectNotExistsAsync(`customer.customerGid`, { type: "state", common: { name: "customerGid", type: "number", role: "name", read: true, write: false }, native: {}, }),
 					this.setObjectNotExistsAsync(`customer.createdAt`, { type: "state", common: { name: "createdAt", type: "string", role: "date", read: true, write: false }, native: {}, })
 				];
-				Promise.all(queue).then(() => {
-					this.setState(`customer.firstName`, customer.firstName, true);
-					this.setState(`customer.lastName`, customer.lastName, true);
-					this.setState(`customer.email`, customer.email, true);
-					this.setState(`customer.customerGid`, customer.customerGid, true);
-					this.setState(`customer.createdAt`, customer.createdAt, true);
-
-				});
+				Promise.all(queue)
+					.then(() => {
+						//this.log.info(`Customer: ${JSON.stringify(customer)}`);
+						this.setState(`customer.firstName`, customer.firstName, true);
+						this.setState(`customer.lastName`, customer.lastName, true);
+						this.setState(`customer.email`, customer.email, true);
+						this.setState(`customer.customerGid`, customer.customerGid, true);
+						this.setState(`customer.createdAt`, customer.createdAt, true);
+					})
+					.catch(err => {
+						this.log.error(err);
+					});
 			}
 		} catch (err) {
 			console.log(err);
