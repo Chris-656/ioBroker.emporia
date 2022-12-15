@@ -188,10 +188,10 @@ class Emporia extends utils.Adapter {
 					.then(() => {
 						//this.log.info(`Customer: ${JSON.stringify(customer)}`);
 						if (customer.firstName) this.setState(`customer.firstName`, customer.firstName, true);
-						if (customer.lastName)this.setState(`customer.lastName`, customer.lastName, true);
-						if (customer.email)this.setState(`customer.email`, customer.email, true);
-						if (customer.customerGid)this.setState(`customer.customerGid`, customer.customerGid, true);
-						if (customer.createdAt)this.setState(`customer.createdAt`, customer.createdAt, true);
+						if (customer.lastName) this.setState(`customer.lastName`, customer.lastName, true);
+						if (customer.email) this.setState(`customer.email`, customer.email, true);
+						if (customer.customerGid) this.setState(`customer.customerGid`, customer.customerGid, true);
+						if (customer.createdAt) this.setState(`customer.createdAt`, customer.createdAt, true);
 					})
 					.catch(err => {
 						this.log.error(err);
