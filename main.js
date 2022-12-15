@@ -64,7 +64,6 @@ class Emporia extends utils.Adapter {
 
 		if (res) {
 			this.updateTokenStates(this.emVue.tokens);
-
 			this.createCustomerStates(this.emVue.customer);
 			this.log.info(`Username:${this.config.user} logged in`);
 			this.setState("info.connection", true, true);
@@ -159,14 +158,18 @@ class Emporia extends utils.Adapter {
 	updateTokenStates(credentials) {
 		try {
 			if (credentials) {
-				this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-				this.setState(`tokens.accessToken`, credentials.AccessToken, true);
+				const queue = [
+					this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, })
+				];
 
-				this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-				this.setState(`tokens.idToken`, credentials.IdToken, true);
+				Promise.all(queue).then (()=>{
+					this.setState(`tokens.accessToken`, credentials.AccessToken, true);
+					this.setState(`tokens.idToken`, credentials.IdToken, true);
+					this.setState(`tokens.refreshToken`, credentials.RefreshToken, true);
+				});
 
-				this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, });
-				this.setState(`tokens.refreshToken`, credentials.RefreshToken, true);
 			}
 		} catch (err) {
 			console.log(err);
@@ -207,7 +210,8 @@ class Emporia extends utils.Adapter {
 					this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch", read: true, write: true }, native: {}, }),
 					this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, }),
 					this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, }),
-					this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "date", read: true, write: false }, native: {}, })mSchedule					this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "string", role: "name", read: true, write: false }, native: {}, })
+					this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "date", read: true, write: false }, native: {}, }),
+					this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "string", role: "name", read: true, write: false }, native: {}, })
 				];
 
 				Promise.all(queue).then(() => {
