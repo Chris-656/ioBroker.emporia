@@ -78,6 +78,32 @@ systemDictionary = {
 		"uk": "розраховує бажаний вихід в Ват або КВ",
 		"zh-cn": "计算Watt或KW预期产出"
 	},
+	"dayusage": {
+		"en": "calculate kW/h day usage",
+		"de": "berechnung Nutzung der kWh-Tage",
+		"ru": "рассчитать использование кВтч дня",
+		"pt": "cálculo Uso do dia de kWh",
+		"nl": "calculeren Quality over Quantity (QoQ) Releases Vertaling:",
+		"fr": "calcul kWh utilisation du jour",
+		"it": "calcolare utilizzo di kWh",
+		"es": "calcular kWh uso del día",
+		"pl": "obliczać kWh",
+		"uk": "розрахувати Використання робочих годин",
+		"zh-cn": "计算 kWh日常使用"
+	},
+	"dayusagehelper": {
+		"en": "calculates the daily usage in KW/h",
+		"de": "berechnet die tägliche Nutzung in KW/h",
+		"ru": "рассчитывает ежедневное использование в KW/h",
+		"pt": "calcula o uso diário em KW/h",
+		"nl": "het dagelijks gebruik in KW/h",
+		"fr": "calcule l'utilisation quotidienne en KW/h",
+		"it": "calcola l'uso quotidiano in KW/h",
+		"es": "calcula el uso diario en KW/h",
+		"pl": "oblicza codzienne wykorzystanie w KW/h",
+		"uk": "розраховує щоденне використання в KW/h",
+		"zh-cn": "计算 KW/h的日常用途"
+	},
 	"refreshhelper": {
 		"en": "In Seconds - Refresh rate for retrieving data from EmpVue device in seconds",
 		"de": "In Seconds - Refresh Rate für das Abrufen von Daten von EmpVue Gerät in Sekunden",

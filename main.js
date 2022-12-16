@@ -73,8 +73,9 @@ class Emporia extends utils.Adapter {
 		if (res) {
 			this.createDeviceStates(this.emVue.devices);
 		}
-
-		this.initSchedule();
+		if (this.config.dayusage) {
+			this.initSchedule();
+		}
 		this.updateInterval = setInterval(() => {
 			this.showUsage();
 		}, this.config.refresh * 1000);
