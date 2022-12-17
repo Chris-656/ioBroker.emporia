@@ -8,6 +8,7 @@
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
 const mSchedule = require("node-schedule");          // https://github.com/node-schedule/node-schedule
+const moment = require("moment");          // https://github.com/node-schedule/node-schedule
 
 let busy = false;
 
@@ -89,9 +90,13 @@ class Emporia extends utils.Adapter {
 			device.channelUsages.forEach(channel => {
 				//this.log.info(`name:${channel.name} usage:${channel.usage}  ${this.emVue.calcLiveKilowatt(channel.usage,,this.config.unitoutput)}`);
 				const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
-
+				const date = moment().utc().subtract(1, "days").startOf("day").unix()*1000;
 				this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
-				this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
+				if (stateName === "live")
+					this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
+				else
+					this.setState(`usage.${stateName}.${name}.${channel.name}`,{val:kiloWatt,ack:true,ts:date});
+
 			});
 			//this.log.info("  ");
 		});
@@ -115,7 +120,7 @@ class Emporia extends utils.Adapter {
 		const rndMinutes = Math.floor(Math.random() * 59);		// Randomize the start of the schedule
 		const rndHours = Math.floor(Math.random() * 2);
 		const schedule = `${rndMinutes} ${rndHours} * * *`;
-		//const schedule = `20 * * * * *`;
+		//const schedule = `10 * * * * *`;
 
 		this.log.info(`Schedule daily values. ${schedule}`);
 
