@@ -59,7 +59,7 @@ class Emporia extends utils.Adapter {
 			this.updateTokenStates(this.emVue.tokens);
 		}
 
-		let res = await this.emVue.getEmpCustomer();
+		let res = await this.emVue.getEmpCustomer(this.config.user);
 
 		if (res) {
 			this.updateTokenStates(this.emVue.tokens);

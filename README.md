@@ -19,6 +19,7 @@ Used the API documentation from  https://github.com/magico13/PyEmVue/blob/master
   ### **WORK IN PROGRESS**
 -->
 ### **WORK IN PROGRESS**
+- changed user credentials
 
 ### 0.0.7 (2022-12-15)
 - added daily usage for monitoring
