@@ -23,6 +23,8 @@ Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/
   ### **WORK IN PROGRESS**
 -->
 ### **WORK IN PROGRESS**
+- code cleaning
+- Logging enhanced
 
 ### 0.0.8 (2023-02-05)
 - changed user credentials

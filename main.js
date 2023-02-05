@@ -43,14 +43,6 @@ class Emporia extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
-		// Initialize your adapter here
-		// const tokens = await this.getTokenStates();
-		// if (tokens) {
-		// 	this.emVue.tokens = tokens;
-		// 	this.log.info(`Tokens retrieved!`);
-		// }else {
-		// 	this.log.info(`no Tokens get new ones!`);
-		// }
 
 		const login = await this.emVue.login(this.config.user, this.config.password);
 		this.log.info(`Login with user:${this.config.user}`);
@@ -81,6 +73,8 @@ class Emporia extends utils.Adapter {
 			this.showUsage();
 		}, this.config.refresh * 1000);
 
+		// subscribe states
+		this.subscribeStates("devices.activated");
 	}
 
 	async createUsageStates(devices, stateName = "live") {
@@ -88,14 +82,14 @@ class Emporia extends utils.Adapter {
 		devices.forEach(device => {
 			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 			device.channelUsages.forEach(channel => {
-				//this.log.info(`name:${channel.name} usage:${channel.usage}  ${this.emVue.calcLiveKilowatt(channel.usage,,this.config.unitoutput)}`);
+				this.log.info(`device:${name} channel:${channel.name} usage: ${this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput).toFixed(2)} Watt`);
 				const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
-				const date = moment().utc().subtract(1, "days").startOf("day").unix()*1000;
+				const date = moment().utc().subtract(1, "days").startOf("day").unix() * 1000;
 				this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
 				if (stateName === "live")
 					this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
 				else
-					this.setState(`usage.${stateName}.${name}.${channel.name}`,{val:kiloWatt,ack:true,ts:date});
+					this.setState(`usage.${stateName}.${name}.${channel.name}`, { val: kiloWatt, ack: true, ts: date });
 
 			});
 			//this.log.info("  ");
@@ -290,7 +284,12 @@ class Emporia extends utils.Adapter {
 	onStateChange(id, state) {
 		if (state) {
 			// The state was changed
-			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			if (state.ack === false) {
+				if (id.indexOf("devices.activated") !== -1) {
+					this.setState("devices.activated", state.val, true);
+				}
+				this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			}
 		} else {
 			// The state was deleted
 			this.log.info(`state ${id} deleted`);
