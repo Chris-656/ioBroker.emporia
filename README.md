@@ -2,9 +2,13 @@
 
 # ioBroker.emporia
 
-This adapter retrieves data from emporia engergy system. At the moment just retrieval of power consumption , no outlets and solar.
+This adapter retrieves data from emporia engergy system. At the moment just retrieval of
+- live power consumption
+- daily values
 
-Used the API documentation from  https://github.com/magico13/PyEmVue/blob/master/api_docs.md
+no outlets and solar at the moment.
+
+Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/master/api_docs.md)
 
 ## Screen Shots
 <img src="admin/img/screenshot1.png" width="400">
@@ -18,6 +22,8 @@ Used the API documentation from  https://github.com/magico13/PyEmVue/blob/master
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
 ### 0.0.8 (2023-02-05)
 - changed user credentials
 
