@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "news": {
+      "0.0.8": {
+        "en": "changed user credentials",
+        "de": "geänderte benutzerberechtigungen",
+        "ru": "измененные учетные данные пользователя",
+        "pt": "credenciais de usuário alteradas",
+        "nl": "veranderde gebruikersbewijs",
+        "fr": "changé d'identité utilisateur",
+        "it": "credenziali utente modificate",
+        "es": "cambiaron las credenciales de usuario",
+        "pl": "zmienione credentials",
+        "uk": "зміни облікових записів користувачів",
+        "zh-cn": "更换用户证书"
+      },
       "0.0.7": {
         "en": "added daily usage for monitoring\nchanged state structure",
         "de": "zusätzliche tägliche nutzung für die überwachung\ngeänderte zustandsstruktur",
@@ -80,18 +93,6 @@
         "pl": "wersja początkowa",
         "uk": "початкова версія",
         "zh-cn": "初次报告"
-      },
-      "0.0.1": {
-        "en": "initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Начальная версия",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie",
-        "zh-cn": "首次出版"
       }
     },
     "title": "Emporia",

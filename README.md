@@ -18,7 +18,7 @@ Used the API documentation from  https://github.com/magico13/PyEmVue/blob/master
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.0.8 (2023-02-05)
 - changed user credentials
 
 ### 0.0.7 (2022-12-15)
