@@ -22,7 +22,7 @@ Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.0.9 (2023-02-05)
 - code cleaning
 - Logging enhanced
 

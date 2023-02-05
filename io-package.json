@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "news": {
+      "0.0.9": {
+        "en": "code cleaning\nLogging enhanced",
+        "de": "codereinigung\nProtokollierung verbessert",
+        "ru": "очистки кода\nВход улучшен",
+        "pt": "limpeza de código\nLogging aprimorado",
+        "nl": "code schoonmaken\nLogging verbeterd",
+        "fr": "nettoyage du code\nAmélioration de la circulation",
+        "it": "pulizia del codice\nRegistrazione migliorata",
+        "es": "limpieza de códigos\nMejoramiento de los registros",
+        "pl": "czyszczenie\nLogging (ang.)",
+        "uk": "очищення коду\nПідвищений",
+        "zh-cn": "清洁守则\nB. 改进的清算"
+      },
       "0.0.8": {
         "en": "changed user credentials",
         "de": "geänderte benutzerberechtigungen",
@@ -80,19 +93,6 @@
         "pl": "Oficjalna strona Changed User Credentials",
         "uk": "Головна: Змінені облікові дані користувачів",
         "zh-cn": "主要机构:更改用户全权证书"
-      },
-      "0.0.2": {
-        "en": "initial version",
-        "de": "erstausführung",
-        "ru": "начальная версия",
-        "pt": "versão inicial",
-        "nl": "eerste versie",
-        "fr": "version initiale",
-        "it": "versione iniziale",
-        "es": "versión inicial",
-        "pl": "wersja początkowa",
-        "uk": "початкова версія",
-        "zh-cn": "初次报告"
       }
     },
     "title": "Emporia",
