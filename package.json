@@ -6,7 +6,7 @@
     "name": "Chris",
     "email": "besterquester@live.at"
   },
-  "homepage": "https://github.com/Chris1965/ioBroker.emporia",
+  "homepage": "https://github.com/Chris-656/ioBroker.emporia",
   "license": "MIT",
   "keywords": [
     "power consumption",
@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Chris1965/ioBroker.emporia.git"
+    "url": "https://github.com/Chris-656/ioBroker.emporia.git"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^2.6.7",
@@ -73,7 +73,7 @@
     "release": "release-script"
   },
   "bugs": {
-    "url": "https://github.com/Chris1965/ioBroker.emporia/issues"
+    "url": "https://github.com/Chris-656/ioBroker.emporia/issues"
   },
   "readmeFilename": "README.md"
 }
