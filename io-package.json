@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "news": {
+      "0.0.10": {
+        "en": "Init fixes and licence",
+        "de": "Init-Fixes und Lizenz",
+        "ru": "Init исправления и лицензия",
+        "pt": "Correções de entrada e licença",
+        "nl": "Init fixeert en licentie",
+        "fr": "Corrections d'Init et licence",
+        "it": "Init fissa e licenza",
+        "es": "Fijaciones y licencias",
+        "pl": "Inicjatywa i licencja",
+        "uk": "Увімкніть застібки і ліцензія",
+        "zh-cn": "包装和许可证"
+      },
       "0.0.9": {
         "en": "code cleaning\nLogging enhanced",
         "de": "codereinigung\nProtokollierung verbessert",
@@ -80,19 +93,6 @@
         "pl": "Feat: drobny błąd naprawiający",
         "uk": "Feat: незначні виправлення помилок",
         "zh-cn": "费:小软弱"
-      },
-      "0.0.3": {
-        "en": "Maint: Changed User Credentials",
-        "de": "Maint: Änderte Benutzerinformationen",
-        "ru": "Maint: Измененные кандидаты пользователей",
-        "pt": "Maint: Credenciais do usuário alterados",
-        "nl": "Veranderde User Credential",
-        "fr": "Titre : Vérification des pouvoirs des utilisateurs modifiés",
-        "it": "Maint: Cambiate le credenziali utente",
-        "es": "Maint: Cambio de credenciales de usuario",
-        "pl": "Oficjalna strona Changed User Credentials",
-        "uk": "Головна: Змінені облікові дані користувачів",
-        "zh-cn": "主要机构:更改用户全权证书"
       }
     },
     "titleLang": {
