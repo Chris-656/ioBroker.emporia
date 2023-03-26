@@ -48,9 +48,11 @@ class Emporia extends utils.Adapter {
 		this.log.info(`Login with user:${this.config.user}`);
 
 		if (login) {
+			this.log.debug(`Check Token status:${login}`);
 			this.updateTokenStates(this.emVue.tokens);
 		}
 
+		this.log.debug(`Get customer data for :${this.config.user}`);
 		let res = await this.emVue.getEmpCustomer(this.config.user);
 
 		if (res) {
@@ -62,6 +64,7 @@ class Emporia extends utils.Adapter {
 			this.setState("info.connection", false, true);
 		}
 
+		this.log.debug(`Get Devices ..`);
 		res = await this.emVue.getEmpDevices();
 		if (res) {
 			this.createDeviceStates(this.emVue.devices);
@@ -155,6 +158,8 @@ class Emporia extends utils.Adapter {
 
 	updateTokenStates(credentials) {
 		try {
+			this.log.debug(`Update token states`);
+
 			if (credentials) {
 				const queue = [
 					this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, }),
@@ -176,6 +181,7 @@ class Emporia extends utils.Adapter {
 
 	createCustomerStates(customer) {
 		try {
+			this.log.debug("create customer states");
 			if (customer) {
 				const queue = [
 					this.setObjectNotExistsAsync(`customer.firstName`, { type: "state", common: { name: "firstName", type: "string", role: "name", read: true, write: false }, native: {}, }),
@@ -204,6 +210,8 @@ class Emporia extends utils.Adapter {
 
 	createDeviceStates(devices) {
 		if (devices && devices.list) {
+			this.log.debug(`set devices states ..`);
+
 			devices.list.forEach(dev => {
 
 				const id = `devices.${dev.locationProperties.deviceName}`;
