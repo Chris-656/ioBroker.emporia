@@ -161,16 +161,18 @@ class Emporia extends utils.Adapter {
 			this.log.debug(`Update token states`);
 
 			if (credentials) {
-				const queue = [
-					this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, }),
-					this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, }),
-					this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, })
-				];
+				const queue = [];
+				queue.push(this.setObjectNotExistsAsync(`tokens.accessToken`, { type: "state", common: { name: "accessToken", type: "string", role: "state", read: true, write: false }, native: {}, }));
+				queue.push(this.setObjectNotExistsAsync(`tokens.idToken`, { type: "state", common: { name: "idToken", type: "string", role: "state", read: true, write: false }, native: {}, }));
+				queue.push(this.setObjectNotExistsAsync(`tokens.refreshToken`, { type: "state", common: { name: "refreshToken", type: "string", role: "state", read: true, write: false }, native: {}, }));
 
 				Promise.all(queue).then(() => {
-					this.setState(`tokens.accessToken`, credentials.AccessToken, true);
-					this.setState(`tokens.idToken`, credentials.IdToken, true);
-					this.setState(`tokens.refreshToken`, credentials.RefreshToken, true);
+					if (credentials.AccessToken)
+						this.setState(`tokens.accessToken`, credentials.AccessToken, true);
+					if (credentials.IdToken)
+						this.setState(`tokens.idToken`, credentials.IdToken, true);
+					if (credentials.RefreshToken)
+						this.setState(`tokens.refreshToken`, credentials.RefreshToken, true);
 				});
 
 			}
