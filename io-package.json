@@ -95,7 +95,6 @@
         "zh-cn": "主要机构:更改用户全权证书"
       }
     },
-    "title": "Emporia",
     "titleLang": {
       "en": "Emporia",
       "de": "Emporia",
@@ -103,10 +102,11 @@
       "pt": "Emporia",
       "nl": "Emporia",
       "fr": "Emporia",
-      "it": "Emperia",
+      "it": "Emporia",
       "es": "Emporia",
       "pl": "Emporia",
-      "zh-cn": "恩波利亚"
+      "uk": "Emporia",
+      "zh-cn": "Emporia"
     },
     "desc": {
       "en": "This adapter retrieves data from emporia vue2 system",
