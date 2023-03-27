@@ -44,6 +44,8 @@ class Emporia extends utils.Adapter {
 	 */
 	async onReady() {
 
+		this.checkValues();
+
 		const login = await this.emVue.login(this.config.user, this.config.password);
 		this.log.info(`Login with user:${this.config.user}`);
 
@@ -72,12 +74,19 @@ class Emporia extends utils.Adapter {
 		if (this.config.dayusage) {
 			this.initSchedule();
 		}
-		this.updateInterval = setInterval(() => {
+		this.updateInterval = this.setInterval(() => {
 			this.showUsage();
 		}, this.config.refresh * 1000);
 
 		// subscribe states
 		this.subscribeStates("devices.activated");
+	}
+
+	checkValues() {
+		if (this.config.refresh < 5)
+			this.config.refresh = 5;
+		if (this.config.refresh > 1000)
+			this.config.refresh = 1000;
 	}
 
 	async createUsageStates(devices, stateName = "live") {
