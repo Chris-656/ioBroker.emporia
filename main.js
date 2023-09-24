@@ -37,21 +37,24 @@ class Emporia extends utils.Adapter {
 		this.emVue = new EmVue();
 	}
 
-
-
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
 
-		this.checkValues();
+		this.checkValues();			// Check properties
 
-		const login = await this.emVue.login(this.config.user, this.config.password);
-		this.log.info(`Login with user:${this.config.user}`);
+		try {
+			const login = await this.emVue.login(this.config.user, this.config.password);
+			this.log.info(`Login with user:${this.config.user}`);
 
-		if (login) {
-			this.log.debug(`Check Token status:${login}`);
-			this.updateTokenStates(this.emVue.tokens);
+			if (login) {
+				this.log.debug(`Check Token status:${login}`);
+				this.updateTokenStates(this.emVue.tokens);
+			}
+		} catch (err) {
+			this.log.warn(`Warning: Login Error:${err.message}`);
+			return; // stop here sinve no user was found
 		}
 
 		this.log.debug(`Get customer data for :${this.config.user}`);
@@ -67,10 +70,17 @@ class Emporia extends utils.Adapter {
 		}
 
 		this.log.debug(`Get Devices ..`);
-		res = await this.emVue.getEmpDevices();
-		if (res) {
-			this.createDeviceStates(this.emVue.devices);
+		try {
+			res = await this.emVue.getEmpDevices();
+			if (res) {
+				this.createDeviceStates(this.emVue.devices);
+			}
 		}
+		catch (err) {
+			this.log.warn(`Warning: No Devices retrieved:${err}`);
+			return;      // Try again later ?
+		}
+
 		if (this.config.dayusage) {
 			this.initSchedule();
 		}
@@ -90,23 +100,24 @@ class Emporia extends utils.Adapter {
 	}
 
 	async createUsageStates(devices, stateName = "live") {
-
-		devices.forEach(device => {
-			const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
-			device.channelUsages.forEach(channel => {
-				this.log.info(`device:${name} channel:${channel.name} usage: ${this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput).toFixed(2)} Watt`);
-				const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
-				const date = moment().utc().subtract(1, "days").startOf("day").unix() * 1000;
-				this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
-				if (stateName === "live")
-					this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
-				else
-					this.setState(`usage.${stateName}.${name}.${channel.name}`, { val: kiloWatt, ack: true, ts: date });
+		try {
+			devices.forEach(device => {
+				const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
+				device.channelUsages.forEach(channel => {
+					this.log.info(`device:${name} channel:${channel.name} usage: ${this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput).toFixed(2)} Watt`);
+					const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
+					const date = moment().utc().subtract(1, "days").startOf("day").unix() * 1000;
+					this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
+					if (stateName === "live")
+						this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
+					else
+						this.setState(`usage.${stateName}.${name}.${channel.name}`, { val: kiloWatt, ack: true, ts: date });
+				});
 
 			});
-			//this.log.info("  ");
-		});
-
+		} catch (err) {
+			this.log.warn(`Warning: Creating User States:${err.message}`);
+		}
 	}
 
 	async getTokenStates() {
@@ -126,42 +137,49 @@ class Emporia extends utils.Adapter {
 		const rndMinutes = Math.floor(Math.random() * 59);		// Randomize the start of the schedule
 		const rndHours = Math.floor(Math.random() * 2);
 		const schedule = `${rndMinutes} ${rndHours} * * *`;
-		//const schedule = `10 * * * * *`;
 
 		this.log.info(`Schedule daily values. ${schedule}`);
 
 		this.schedule = mSchedule.scheduleJob(schedule, async () => {
-			const dayDeviceUsage = await this.emVue.getEmpDayUsage();
-			//this.log.info(JSON.stringify(dayDeviceUsage));
-			this.log.info(`instant:${dayDeviceUsage.instant} scale:${dayDeviceUsage.scale} unit:${dayDeviceUsage.energyUnit}`);
+			try {
+				const dayDeviceUsage = await this.emVue.getEmpDayUsage();
+				this.log.info(`instant:${dayDeviceUsage.instant} scale:${dayDeviceUsage.scale} unit:${dayDeviceUsage.energyUnit}`);
 
-			this.createUsageStates(dayDeviceUsage.devices, "day");
+				this.createUsageStates(dayDeviceUsage.devices, "day");
+			} catch (err) {
+				this.log.info(`getEmpDayUSage Error:${err.message}`);
+			}
 		});
 
 	}
 
 	async showUsage() {
-		//const deviceNames = this.emVue.devices.list.map(d => d.locationProperties.deviceName).join(",");
-		//const usedDevices = this.emVue.devices.list.map(d => d.locationProperties.deviceName);
-		// @ts-ignore
-		const isActivated = (await this.getStateAsync("devices.activated")).val;
 
-		if (isActivated && !busy) {
-			if (!busy) {
-				busy = true;
-				//this.log.info(`getting live power usage for ${deviceNames} `);
-				// eslint-disable-next-line prefer-const
-				let deviceListUsages = await this.emVue.getEmpDeviceListUsage();
-				if (deviceListUsages && deviceListUsages.devices) {
-					//this.log.info(JSON.stringify(`${(JSON.stringify(deviceListUsages))}`));
-					this.createUsageStates(deviceListUsages.devices);
+		try {
+			// @ts-ignore
+			const isActivated = (await this.getStateAsync("devices.activated")).val;
+
+			if (isActivated) {
+				if (!busy) {
+					busy = true;
+					//this.log.info(`getting live power usage for ${deviceNames} `);
+					// eslint-disable-next-line prefer-const
+					let deviceListUsages = await this.emVue.getEmpDeviceListUsage();
+
+					if (deviceListUsages && deviceListUsages.devices) {
+						//this.log.info(JSON.stringify(`${(JSON.stringify(deviceListUsages))}`));
+						this.createUsageStates(deviceListUsages.devices);
+					}
+					busy = false;
+				} else {
+					this.log.debug("retrieving data is not done  -> busy");
 				}
-				busy = false;
 			} else {
-				this.log.info("retrieving data is not done  -> busy");
+				this.log.info("retrieving data is not active set the state activated under devices to true");
 			}
-		} else {
-			this.log.info("retrieving data is not active set the state activated under devices to true");
+		}
+		catch (err) {
+			this.log.info(`Error: Rtrieving Usage: ${err.message}`);
 		}
 	}
 
@@ -186,7 +204,7 @@ class Emporia extends utils.Adapter {
 
 			}
 		} catch (err) {
-			console.log(err);
+			this.log.warn(`Update token states failed: ${err.message}`);
 		}
 	}
 
@@ -215,42 +233,47 @@ class Emporia extends utils.Adapter {
 					});
 			}
 		} catch (err) {
-			console.log(err);
+			this.log.warn(`Create customer states failed: ${err.message}`);
 		}
 	}
 
 	createDeviceStates(devices) {
-		if (devices && devices.list) {
-			this.log.debug(`set devices states ..`);
+		try {
+			if (devices && devices.list) {
+				this.log.debug(`set devices states ..`);
 
-			devices.list.forEach(dev => {
+				devices.list.forEach(dev => {
 
-				const id = `devices.${dev.locationProperties.deviceName}`;
-				const queue = [
-					this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, }),
-					this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch", read: true, write: true }, native: {}, }),
-					this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, }),
-					this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, }),
-					this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "date", read: true, write: false }, native: {}, }),
-					this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "string", role: "name", read: true, write: false }, native: {}, })
-				];
+					const id = `devices.${dev.locationProperties.deviceName}`;
+					const queue = [
+						this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, }),
+						this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch", read: true, write: true }, native: {}, }),
+						this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, }),
+						this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, }),
+						this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "date", read: true, write: false }, native: {}, }),
+						this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "string", role: "name", read: true, write: false }, native: {}, })
+					];
 
-				Promise.all(queue).then(() => {
-					this.getStateAsync("devices.activated").
-						then(state => {
-							if (!state || state.val === null)
-								this.setState("devices.activated", true, true);
-						});
+					Promise.all(queue).then(() => {
+						this.getStateAsync("devices.activated").
+							then(state => {
+								if (!state || state.val === null)
+									this.setState("devices.activated", true, true);
+							});
 
-					this.setState(id + ".model", dev.model, true);
-					this.setState(id + ".firmware", dev.firmware, true);
-					this.setState(id + ".deviceGid", dev.deviceGid, true);
-					this.setState(id + ".timeZone", dev.locationProperties.timeZone, true);
-					if (dev.locationProperties.usageCentPerKwHours) {
-						this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHours, true);
-					}
+						this.setState(id + ".model", dev.model, true);
+						this.setState(id + ".firmware", dev.firmware, true);
+						this.setState(id + ".deviceGid", dev.deviceGid, true);
+						this.setState(id + ".timeZone", dev.locationProperties.timeZone, true);
+						if (dev.locationProperties.usageCentPerKwHours) {
+							this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHours, true);
+						}
+					});
 				});
-			});
+			}
+		}
+		catch (err) {
+			this.log.warn(`Create Device States failed: ${err.message}`);
 		}
 
 	}
@@ -266,7 +289,7 @@ class Emporia extends utils.Adapter {
 			// ...
 			// clearInterval(interval1);
 			if (this.updateInterval) {
-				clearInterval(this.updateInterval);
+				this.clearInterval(this.updateInterval);
 				this.updateInterval = null;
 			}
 			if (this.schedule) {
