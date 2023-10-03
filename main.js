@@ -103,6 +103,7 @@ class Emporia extends utils.Adapter {
 		try {
 			devices.forEach(device => {
 				const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
+
 				device.channelUsages.forEach(channel => {
 					this.log.info(`device:${name} channel:${channel.name} usage: ${this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput).toFixed(2)} Watt`);
 					const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
@@ -147,7 +148,7 @@ class Emporia extends utils.Adapter {
 
 				this.createUsageStates(dayDeviceUsage.devices, "day");
 			} catch (err) {
-				this.log.info(`getEmpDayUSage Error:${err.message}`);
+				this.log.warn(`getEmpDayUsage Error:${err.message}`);
 			}
 		});
 
@@ -158,11 +159,10 @@ class Emporia extends utils.Adapter {
 		try {
 			// @ts-ignore
 			const isActivated = (await this.getStateAsync("devices.activated")).val;
-
+			const tmp = true;
 			if (isActivated) {
-				if (!busy) {
+				if (tmp) {
 					busy = true;
-					//this.log.info(`getting live power usage for ${deviceNames} `);
 					// eslint-disable-next-line prefer-const
 					let deviceListUsages = await this.emVue.getEmpDeviceListUsage();
 
@@ -172,14 +172,15 @@ class Emporia extends utils.Adapter {
 					}
 					busy = false;
 				} else {
-					this.log.debug("retrieving data is not done  -> busy");
+					this.log.info("retrieving data is not done  -> busy");
 				}
 			} else {
 				this.log.info("retrieving data is not active set the state activated under devices to true");
 			}
 		}
 		catch (err) {
-			this.log.info(`Error: Rtrieving Usage: ${err.message}`);
+			this.log.warn(`Error: Retrieving Usage: ${err.message}`);
+			busy = false;
 		}
 	}
 
