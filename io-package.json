@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "news": {
+      "0.0.11": {
+        "en": "fix stop reading usage",
+        "de": "die verwendung des stop-lesens",
+        "ru": "исправить остановить чтение использование",
+        "pt": "corrigir o uso da leitura",
+        "nl": "stop met gebruik te lezen",
+        "fr": "arrêter de lire l'utilisation",
+        "it": "fix stop lettura utilizzo",
+        "es": "uso de la lectura",
+        "pl": "poprawność",
+        "uk": "фіксувати функцію читання стоп",
+        "zh-cn": "f 停止阅读"
+      },
       "0.0.10": {
         "en": "Init fixes and licence",
         "de": "Init-Fixes und Lizenz",
@@ -80,19 +93,6 @@
         "pl": "Użytkowana kredentia i odzyskiwanie tokenów, jeśli nie jest dostępna\nczy trąbka",
         "uk": "Оновлено облікові дані користувачів і отримати токен, якщо не доступний\nвиправлення помилок",
         "zh-cn": "如果无法提供最新用户证明和检索\n明示或软弱"
-      },
-      "0.0.4": {
-        "en": "Feat: minor bug fixes",
-        "de": "Feat: kleinere Fehlerbehebungen",
-        "ru": "Feat: мелкие исправления ошибок",
-        "pt": "Feat: pequenas correções de bugs",
-        "nl": "Feat:",
-        "fr": "Feat: corrections de bug mineur",
-        "it": "Tariffa: correzioni di bug minori",
-        "es": "Carne: correcciones de fallo menores",
-        "pl": "Feat: drobny błąd naprawiający",
-        "uk": "Feat: незначні виправлення помилок",
-        "zh-cn": "费:小软弱"
       }
     },
     "titleLang": {
