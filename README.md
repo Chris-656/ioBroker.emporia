@@ -23,6 +23,7 @@ Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/
   ### **WORK IN PROGRESS**
 -->
 ### **WORK IN PROGRESS**
+- fix stop reading usage
 
 ### 0.0.10 (2023-03-26)
 - Init fixes and licence
