@@ -22,6 +22,8 @@ Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
 ### 0.0.11 (2023-10-03)
 - fix stop reading usage
 

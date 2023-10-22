@@ -158,7 +158,9 @@ class Emporia extends utils.Adapter {
 
 		try {
 			// @ts-ignore
-			const isActivated = (await this.getStateAsync("devices.activated")).val;
+			const isActivatedState = await this.getStateAsync("devices.activated");
+			const isActivated = (isActivatedState && isActivatedState.val)?isActivatedState.val:false;
+
 			const tmp = true;
 			if (isActivated) {
 				if (tmp) {
