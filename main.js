@@ -159,8 +159,8 @@ class Emporia extends utils.Adapter {
 		try {
 			// @ts-ignore
 			const isActivatedState = await this.getStateAsync("devices.activated");
-			const isActivated = (isActivatedState && isActivatedState.val)?isActivatedState.val:false;
-
+			const isActivated = (isActivatedState && isActivatedState.val) ? isActivatedState.val : false;
+			this.log.info(`isActivated ${isActivated}`);
 			const tmp = true;
 			if (isActivated) {
 				if (tmp) {
@@ -258,11 +258,10 @@ class Emporia extends utils.Adapter {
 					];
 
 					Promise.all(queue).then(() => {
-						this.getStateAsync("devices.activated").
-							then(state => {
-								if (!state || state.val === null)
-									this.setState("devices.activated", true, true);
-							});
+						this.getStateAsync("devices.activated").then(state => {
+							if (!state || !state.val)
+								this.setState("devices.activated", false, true);
+						});
 
 						this.setState(id + ".model", dev.model, true);
 						this.setState(id + ".firmware", dev.firmware, true);
