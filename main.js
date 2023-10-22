@@ -92,6 +92,16 @@ class Emporia extends utils.Adapter {
 		this.subscribeStates("devices.activated");
 	}
 
+	changeSchedule(active) {
+		if (this.updateInterval) {
+			if (active) {
+				this.clearInterval(this.updateInterval);
+			} else
+				this.updateInterval = this.setInterval(() => { this.showUsage(); }, this.config.refresh * 1000);
+			this.log.debug(`Switched on intervall: ${this.config.refresh}`);
+		}
+	}
+
 	checkValues() {
 		if (this.config.refresh < 5)
 			this.config.refresh = 5;
@@ -163,6 +173,7 @@ class Emporia extends utils.Adapter {
 			//this.log.info(`isActivated ${isActivated}`);
 			const tmp = true;
 			if (isActivated) {
+				// Maybe stop the scheduler for retrieving data here when acivated is set to false
 				if (tmp) {
 					busy = true;
 					// eslint-disable-next-line prefer-const
@@ -330,6 +341,9 @@ class Emporia extends utils.Adapter {
 			// The state was changed
 			if (state.ack === false) {
 				if (id.indexOf("devices.activated") !== -1) {
+
+					//  this.changeSchedule(state.val);	// Stop Scheduler
+
 					this.setState("devices.activated", state.val, true);
 				}
 				this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
