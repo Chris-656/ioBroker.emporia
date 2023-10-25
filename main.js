@@ -97,6 +97,7 @@ class Emporia extends utils.Adapter {
 		if (this.updateInterval) {
 			if (!active) {
 				this.clearInterval(this.updateInterval);
+				this.log.debug(`clearINtervall`);
 			} else {
 				this.updateInterval = this.setInterval(() => { this.showUsage(); }, this.config.refresh * 1000);
 
