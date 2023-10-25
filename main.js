@@ -98,10 +98,11 @@ class Emporia extends utils.Adapter {
 		if (this.updateInterval) {
 			if (!active) {
 				this.clearInterval(this.updateInterval);
+				this.log.info(`Switched off intervall`);
 			} else {
 				this.updateInterval = this.setInterval(() => { this.showUsage(); }, this.config.refresh * 1000);
 
-				this.log.debug(`Switched on intervall: ${this.config.refresh}`);
+				this.log.info(`Switched on intervall: ${this.config.refresh}`);
 			}
 
 		}
@@ -170,7 +171,6 @@ class Emporia extends utils.Adapter {
 	}
 
 	async showUsage() {
-
 		try {
 
 			const deviceListUsages = await this.emVue.getEmpDeviceListUsage();
