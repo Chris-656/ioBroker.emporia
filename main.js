@@ -172,7 +172,7 @@ class Emporia extends utils.Adapter {
 			const isActivated = (isActivatedState && isActivatedState.val) ? isActivatedState.val : false;
 			//this.log.info(`isActivated ${isActivated}`);
 			const tmp = true;
-			if (isActivated) {
+			if (tmp) {
 				// Maybe stop the scheduler for retrieving data here when acivated is set to false
 				if (tmp) {
 					busy = true;
@@ -342,7 +342,8 @@ class Emporia extends utils.Adapter {
 			if (state.ack === false) {
 				if (id.indexOf("devices.activated") !== -1) {
 
-					//  this.changeSchedule(state.val);	// Stop Scheduler
+					this.changeSchedule(state.val);	// change Scheduler
+					this.log.info(`Set scheduler ${(state.val) ? "On" : "Off"}`);
 
 					this.setState("devices.activated", state.val, true);
 				}
