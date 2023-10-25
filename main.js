@@ -84,6 +84,7 @@ class Emporia extends utils.Adapter {
 		if (this.config.dayusage) {
 			this.initSchedule();
 		}
+		//this.onStateChange(true);
 		this.updateInterval = this.setInterval(() => {
 			this.showUsage();
 		}, this.config.refresh * 1000);
@@ -94,7 +95,7 @@ class Emporia extends utils.Adapter {
 
 	changeSchedule(active) {
 		if (this.updateInterval) {
-			if (active) {
+			if (!active) {
 				this.clearInterval(this.updateInterval);
 			} else
 				this.updateInterval = this.setInterval(() => { this.showUsage(); }, this.config.refresh * 1000);
