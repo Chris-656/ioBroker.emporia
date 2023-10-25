@@ -10,7 +10,7 @@ const utils = require("@iobroker/adapter-core");
 const mSchedule = require("node-schedule");          // https://github.com/node-schedule/node-schedule
 const moment = require("moment");          // https://github.com/node-schedule/node-schedule
 
-let busy = false;
+//let busy = false;
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -94,11 +94,10 @@ class Emporia extends utils.Adapter {
 	}
 
 	changeSchedule(active) {
-		this.log.info(`in changeSchedule`);
+
 		if (this.updateInterval) {
 			if (!active) {
 				this.clearInterval(this.updateInterval);
-				this.log.info(`clearINtervall`);
 			} else {
 				this.updateInterval = this.setInterval(() => { this.showUsage(); }, this.config.refresh * 1000);
 
@@ -173,33 +172,16 @@ class Emporia extends utils.Adapter {
 	async showUsage() {
 
 		try {
-			// @ts-ignore
-			const isActivatedState = await this.getStateAsync("devices.activated");
-			const isActivated = (isActivatedState && isActivatedState.val) ? isActivatedState.val : false;
-			//this.log.info(`isActivated ${isActivated}`);
-			const tmp = true;
-			if (tmp) {
-				// Maybe stop the scheduler for retrieving data here when acivated is set to false
-				if (tmp) {
-					busy = true;
-					// eslint-disable-next-line prefer-const
-					let deviceListUsages = await this.emVue.getEmpDeviceListUsage();
 
-					if (deviceListUsages && deviceListUsages.devices) {
-						//this.log.info(JSON.stringify(`${(JSON.stringify(deviceListUsages))}`));
-						this.createUsageStates(deviceListUsages.devices);
-					}
-					busy = false;
-				} else {
-					this.log.info("retrieving data is not done  -> busy");
-				}
-			} else {
-				this.log.info("retrieving data is not active set the state activated under devices to true");
+			const deviceListUsages = await this.emVue.getEmpDeviceListUsage();
+
+			if (deviceListUsages && deviceListUsages.devices) {
+				//this.log.info(JSON.stringify(`${(JSON.stringify(deviceListUsages))}`));
+				this.createUsageStates(deviceListUsages.devices);
 			}
 		}
 		catch (err) {
 			this.log.warn(`Error: Retrieving Usage: ${err.message}`);
-			busy = false;
 		}
 	}
 
