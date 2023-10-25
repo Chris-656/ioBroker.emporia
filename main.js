@@ -94,6 +94,7 @@ class Emporia extends utils.Adapter {
 	}
 
 	changeSchedule(active) {
+		this.log.debug(`in changeSchedule`);
 		if (this.updateInterval) {
 			if (!active) {
 				this.clearInterval(this.updateInterval);
