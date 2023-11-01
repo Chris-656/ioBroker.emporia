@@ -69,6 +69,7 @@ class Emporia extends utils.Adapter {
 			this.setState("info.connection", false, true);
 		}
 
+
 		this.log.debug(`Get Devices ..`);
 		try {
 			res = await this.emVue.getEmpDevices();
@@ -81,13 +82,23 @@ class Emporia extends utils.Adapter {
 			return;      // Try again later ?
 		}
 
+		// Test with outlets
+		this.log.debug(`Get Outlets ..`);
+		if (!await this.emVue.getEmpOutlets()) {
+			this.log.warn(`No Outlets linked to device`);
+		}
+
 		if (this.config.dayusage) {
 			this.initSchedule();
 		}
-		//this.onStateChange(true);
-		this.updateInterval = this.setInterval(() => {
-			this.showUsage();
-		}, this.config.refresh * 1000);
+		// start intervall automatically
+		const startSchedule = await this.getStateAsync("devices.activated");
+
+		if (startSchedule && startSchedule.val) {
+			this.changeSchedule(true);
+			this.log.warn(`Schedule startet`);
+		}
+
 
 		// subscribe states
 		this.subscribeStates("devices.activated");
@@ -95,16 +106,17 @@ class Emporia extends utils.Adapter {
 
 	changeSchedule(active) {
 
-		if (this.updateInterval) {
-			if (active) {
-				this.updateInterval = this.setInterval(() => { this.showUsage(); }, this.config.refresh * 1000);
-				this.log.info(`Switched on intervall: ${this.config.refresh}`);
-
-			} else {
+		if (active) {
+			this.updateInterval = this.setInterval(() => { this.showUsage(); }, this.config.refresh * 1000);
+			this.log.info(`Switched on Usage Schedule: ${this.config.refresh}`);
+		} else {
+			if (this.updateInterval) {
 				this.clearInterval(this.updateInterval);
-				this.log.info(`Switched off intervall`);
+				this.updateInterval = null;
+				this.log.info(`Switched off Usage Schedule`);
 			}
 		}
+
 	}
 
 	checkValues() {
@@ -175,7 +187,6 @@ class Emporia extends utils.Adapter {
 			const deviceListUsages = await this.emVue.getEmpDeviceListUsage();
 
 			if (deviceListUsages && deviceListUsages.devices) {
-				//this.log.info(JSON.stringify(`${(JSON.stringify(deviceListUsages))}`));
 				this.createUsageStates(deviceListUsages.devices);
 			}
 		}
@@ -330,11 +341,11 @@ class Emporia extends utils.Adapter {
 				if (id.indexOf("devices.activated") !== -1) {
 
 					this.changeSchedule(state.val);	// change Scheduler
-					this.log.info(`Set scheduler ${(state.val) ? "On" : "Off"}`);
+					//this.log.info(`Set scheduler ${(state.val) ? "On" : "Off"}`);
 
 					this.setState("devices.activated", state.val, true);
 				}
-				this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+				this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 			}
 		} else {
 			// The state was deleted
