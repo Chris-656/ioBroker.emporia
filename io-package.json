@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.0.11",
+    "version": "0.0.12",
     "news": {
+      "0.0.12": {
+        "en": "fixed issues with scheduler",
+        "de": "feste probleme mit scheduler",
+        "ru": "фиксированные вопросы с графиком",
+        "pt": "problemas fixos com agendador",
+        "nl": "vertaling:",
+        "fr": "problèmes fixes avec l'horaire",
+        "it": "problemi fissi con scheduler",
+        "es": "cuestiones fijas con el programador",
+        "pl": "rzecznik stały z terminatorem",
+        "uk": "виправлені питання з графіком",
+        "zh-cn": "固定问题"
+      },
       "0.0.11": {
         "en": "fix stop reading usage",
         "de": "die verwendung des stop-lesens",
@@ -80,19 +93,6 @@
         "pl": "czas aktualizacji\nmożliwa jest zmiana jednostek wyjściowych na kW lub Watt\npaństwo do aktywacji lub dezaktywacji",
         "uk": "час оновлення\nможливість змінити вихідні одиниці до кВт або Вт\nстан активізації або деактивації",
         "zh-cn": "更新的时间\n改变产出单位改变千瓦或瓦塔的可能性\na. 挑动或改变重塑状态"
-      },
-      "0.0.5": {
-        "en": "Updated user credentials and retrieve token if not available\nmin or bug fixes",
-        "de": "Aktualisierte Benutzerberechtigungen und Abrufen von Token, wenn nicht verfügbar\nmin oder bugfixes",
-        "ru": "Обновленные учетные данные пользователя и получить токен, если нет в наличии\nмин или исправление ошибок",
-        "pt": "Credenciais de usuário atualizadas e recuperar token se não estiver disponível\nmin ou correções de bugs",
-        "nl": "Verhoogde gebruikerscriminaliteiten en verkrijgen token als ze niet beschikbaar zijn\nmin of bug fixes",
-        "fr": "Mise à jour des identifiants et récupérer le jeton si non disponible\nmin ou correction de bugs",
-        "it": "Aggiornamento delle credenziali utente e recuperare token se non disponibile\ncorrezioni min o bug",
-        "es": "Actualización de las credenciales de usuario y recuperar ficha si no está disponible\nmin o bug soluciones",
-        "pl": "Użytkowana kredentia i odzyskiwanie tokenów, jeśli nie jest dostępna\nczy trąbka",
-        "uk": "Оновлено облікові дані користувачів і отримати токен, якщо не доступний\nвиправлення помилок",
-        "zh-cn": "如果无法提供最新用户证明和检索\n明示或软弱"
       }
     },
     "titleLang": {
