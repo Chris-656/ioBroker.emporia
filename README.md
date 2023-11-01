@@ -23,6 +23,7 @@ Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/
   ### **WORK IN PROGRESS**
 -->
 ### **WORK IN PROGRESS**
+- fixed issues with scheduler
 
 ### 0.0.11 (2023-10-03)
 - fix stop reading usage
