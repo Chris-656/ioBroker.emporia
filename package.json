@@ -1,6 +1,6 @@
 {
   "name": "iobroker.emporia",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "retrieves data from emporia energy system",
   "author": {
     "name": "Chris",
