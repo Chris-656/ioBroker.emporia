@@ -415,8 +415,8 @@ class Emporia extends utils.Adapter {
 				if (id.indexOf(".outletOn") !== -1) {
 					this.log.info(`Outlet ${id} changed`);
 					// set plug
-					const res1 = await this.emVue.putEmpOutlet("277738", false);
-					this.log.info(`Result ${res1} `);
+					const res1 = await this.emVue.putEmpOutlet(277738, state.val);
+					this.log.info(`Result ${JSON.stringify(res1)} `);
 					this.setState(id, state.val, true);
 
 				}
