@@ -171,13 +171,15 @@ class Emporia extends utils.Adapter {
 					this.log.info(`device:${name} channel:${channel.name} usage: ${this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput).toFixed(2)} Watt`);
 					const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
 					const date = moment().utc().subtract(1, "days").startOf("day").unix() * 1000;
-					this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
 
-
-					if (stateName === "live")
-						this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
-					else
-						this.setState(`usage.${stateName}.${name}.${channel.name}`, { val: kiloWatt, ack: true, ts: date });
+					const queue = [];
+					queue.push(this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, }));
+					Promise.all(queue).then(() => {
+						if (stateName === "live")
+							this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
+						else
+							this.setState(`usage.${stateName}.${name}.${channel.name}`, { val: kiloWatt, ack: true, ts: date });
+					});
 
 					// only one nested device implemented yet no recursion
 					if (channel.nestedDevices.length > 0) {
@@ -185,16 +187,17 @@ class Emporia extends utils.Adapter {
 							const devname = this.emVue.devices.list.find(x => x.deviceGid === nestedDevice.deviceGid).locationProperties.deviceName;
 							const nkiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(nestedDevice.channelUsages[0].usage, this.config.unitoutput) : nestedDevice.channelUsages[0].usage;
 							this.log.info(`... device:${name} channel:${channel.name}->.${devname} usage: ${nkiloWatt.toFixed(2)} Watt`);
-
-							this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}.${devname}`, { type: "state", common: { name: devname, type: "number", role: "value.power", read: true, write: false }, native: {}, });
-							if (stateName === "live")
-								this.setState(`usage.${stateName}.${name}.${channel.name}.${devname}`, nkiloWatt, true);
-							else
-								this.setState(`usage.${stateName}.${name}.${channel.name}.${devname}`, { val: nkiloWatt, ack: true, ts: date });
+							const queue = [];
+							queue.push(this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}.${devname}`, { type: "state", common: { name: devname, type: "number", role: "value.power", read: true, write: false }, native: {}, }));
+							Promise.all(queue).then(() => {
+								if (stateName === "live")
+									this.setState(`usage.${stateName}.${name}.${channel.name}.${devname}`, nkiloWatt, true);
+								else
+									this.setState(`usage.${stateName}.${name}.${channel.name}.${devname}`, { val: nkiloWatt, ack: true, ts: date });
+							});
 						});
 					}
 				});
-
 			});
 		} catch (err) {
 			this.log.warn(`Warning: Creating User States:${err.message}`);
@@ -413,7 +416,7 @@ class Emporia extends utils.Adapter {
 					this.log.info(`Outlet ${id} changed`);
 					// set plug
 					const res1 = await this.emVue.putEmpOutlet("277738", false);
-					this.log.info(`Result ${JSON.stringify(res1)} `);
+					this.log.info(`Result ${res1} `);
 					this.setState(id, state.val, true);
 
 				}
