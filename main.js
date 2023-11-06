@@ -83,10 +83,15 @@ class Emporia extends utils.Adapter {
 		}
 
 		// Test with outlets
-		this.log.debug(`Get Outlets ..`);
-		if (!await this.emVue.getEmpOutlets()) {
-			this.log.warn(`No Outlets linked to device`);
-		}
+		//this.log.debug(`Get Outlets ..`);
+		//res = await this.emVue.getEmpOutlets();
+		/* this.log.debug(`Get Outlets .. ${JSON.stringify(this.emVue.outlets.list)}`);
+		this.log.debug(`Count .. ${this.emVue.outlets.list.length}`); */
+		//this.createOutletStates(this.emVue.outlets.list);
+
+		// const res1 = await this.emVue.putEmpOutlet("277738", false);
+		// this.log.info(`Result ${JSON.stringify(res1)} `);
+
 
 		if (this.config.dayusage) {
 			this.initSchedule();
@@ -96,13 +101,41 @@ class Emporia extends utils.Adapter {
 
 		if (startSchedule && startSchedule.val) {
 			this.changeSchedule(true);
-			this.log.warn(`Schedule startet`);
+			//this.log.warn(`Schedule startet`);
 		}
 
 
 		// subscribe states
 		this.subscribeStates("devices.activated");
+
 	}
+
+	/* async createOutletStates(outlets) {
+		try {
+			//this.log.warn(`Outlets:${JSON.stringify(outlets)}`);
+			outlets.forEach(outlet => {
+				const queue = [];
+				queue.push(this.setObjectNotExistsAsync(`outlets.${outlet.deviceGid}.deviceGid`, { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, }));
+				queue.push(this.setObjectNotExistsAsync(`outlets.${outlet.deviceGid}.outletOn`, { type: "state", common: { name: "outletOn", type: "boolean", role: "level", read: true, write: true }, native: {}, }));
+				queue.push(this.setObjectNotExistsAsync(`outlets.${outlet.deviceGid}.loadGid`, { type: "state", common: { name: "loadGid", type: "number", role: "value", read: true, write: false }, native: {}, }));
+
+				//const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
+
+				Promise.all(queue).then(() => {
+					if (outlet.deviceGid)
+						this.setState(`outlets.${outlet.deviceGid}.deviceGid`, outlet.deviceGid, true);
+					if (outlet.outletOn)
+						this.setState(`outlets.${outlet.deviceGid}.outletOn`, outlet.outletOn, true);
+					if (outlet.loadGid)
+						this.setState(`outlets.${outlet.deviceGid}.loadGid`, outlet.loadGid, true);
+				});
+				this.subscribeStates(`outlets.${outlet.deviceGid}.outletOn`);
+			});
+
+		} catch (err) {
+			this.log.warn(`Warning: Creating User States:${err.message}`);
+		}
+	} */
 
 	changeSchedule(active) {
 
@@ -128,18 +161,38 @@ class Emporia extends utils.Adapter {
 
 	async createUsageStates(devices, stateName = "live") {
 		try {
+			//this.log.debug(`devices Usage ${JSON.stringify(devices)}`);
+
 			devices.forEach(device => {
 				const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
 
 				device.channelUsages.forEach(channel => {
+
 					this.log.info(`device:${name} channel:${channel.name} usage: ${this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput).toFixed(2)} Watt`);
 					const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
 					const date = moment().utc().subtract(1, "days").startOf("day").unix() * 1000;
 					this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, });
+
+
 					if (stateName === "live")
 						this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
 					else
 						this.setState(`usage.${stateName}.${name}.${channel.name}`, { val: kiloWatt, ack: true, ts: date });
+
+					// only one nested device implemented yet no recursion
+					if (channel.nestedDevices.length > 0) {
+						channel.nestedDevices.forEach(nestedDevice => {
+							const devname = this.emVue.devices.list.find(x => x.deviceGid === nestedDevice.deviceGid).locationProperties.deviceName;
+							const nkiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(nestedDevice.channelUsages[0].usage, this.config.unitoutput) : nestedDevice.channelUsages[0].usage;
+							this.log.info(`... device:${name} channel:${channel.name}->.${devname} usage: ${nkiloWatt.toFixed(2)} Watt`);
+
+							this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}.${devname}`, { type: "state", common: { name: devname, type: "number", role: "value.power", read: true, write: false }, native: {}, });
+							if (stateName === "live")
+								this.setState(`usage.${stateName}.${name}.${channel.name}.${devname}`, nkiloWatt, true);
+							else
+								this.setState(`usage.${stateName}.${name}.${channel.name}.${devname}`, { val: nkiloWatt, ack: true, ts: date });
+						});
+					}
 				});
 
 			});
@@ -185,7 +238,6 @@ class Emporia extends utils.Adapter {
 		try {
 
 			const deviceListUsages = await this.emVue.getEmpDeviceListUsage();
-
 			if (deviceListUsages && deviceListUsages.devices) {
 				this.createUsageStates(deviceListUsages.devices);
 			}
@@ -254,17 +306,23 @@ class Emporia extends utils.Adapter {
 			if (devices && devices.list) {
 				this.log.debug(`set devices states ..`);
 
+				devices.list.map(d => d.deviceGid).join("+");
 				devices.list.forEach(dev => {
 
 					const id = `devices.${dev.locationProperties.deviceName}`;
-					const queue = [
-						this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, }),
-						this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch.mode.auto", read: true, write: true }, native: {}, }),
-						this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, }),
-						this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, }),
-						this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "text", read: true, write: false }, native: {}, }),
-						this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "number", role: "value", read: true, write: false }, native: {}, })
-					];
+
+					const queue = [];
+					queue.push(this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, }));
+					queue.push(this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch.mode.auto", read: true, write: true }, native: {}, }));
+					queue.push(this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, }));
+					queue.push(this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, }));
+					queue.push(this.setObjectNotExistsAsync(id + ".timeZone", { type: "state", common: { name: "timeZone", type: "string", role: "text", read: true, write: false }, native: {}, }));
+					queue.push(this.setObjectNotExistsAsync(id + ".centPerKwHour", { type: "state", common: { name: "centPerKwHour", type: "number", role: "value", read: true, write: false }, native: {}, }));
+					if (dev.outlet) {
+						// `outlets.${outlet.deviceGid}.outletOn`
+						queue.push(this.setObjectNotExistsAsync(id + ".outletOn", { type: "state", common: { name: "outletOn", type: "boolean", role: "level", read: true, write: true }, native: {}, }));
+						queue.push(this.setObjectNotExistsAsync(id + ".loadGid", { type: "state", common: { name: "loadGid", type: "number", role: "value", read: true, write: false }, native: {}, }));
+					}
 
 					Promise.all(queue).then(() => {
 						this.getStateAsync("devices.activated").then(state => {
@@ -276,8 +334,14 @@ class Emporia extends utils.Adapter {
 						this.setState(id + ".firmware", dev.firmware, true);
 						this.setState(id + ".deviceGid", dev.deviceGid, true);
 						this.setState(id + ".timeZone", dev.locationProperties.timeZone, true);
-						if (dev.locationProperties.usageCentPerKwHours) {
-							this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHours, true);
+						if (dev.outlet) {
+							this.setState(id + ".outletOn", dev.outlet.outletOn, true);
+							this.setState(id + ".loadGid", dev.outlet.loadGid, true);
+							this.subscribeStates(id + ".outletOn");
+						}
+
+						if (dev.locationProperties.usageCentPerKwHour) {
+							this.setState(id + ".centPerKwHour", dev.locationProperties.usageCentPerKwHour, true);
 						}
 					});
 				});
@@ -334,7 +398,7 @@ class Emporia extends utils.Adapter {
 	 * @param {string} id
 	 * @param {ioBroker.State | null | undefined} state
 	 */
-	onStateChange(id, state) {
+	async onStateChange(id, state) {
 		if (state) {
 			// The state was changed
 			if (state.ack === false) {
@@ -344,6 +408,14 @@ class Emporia extends utils.Adapter {
 					//this.log.info(`Set scheduler ${(state.val) ? "On" : "Off"}`);
 
 					this.setState("devices.activated", state.val, true);
+				}
+				if (id.indexOf(".outletOn") !== -1) {
+					this.log.info(`Outlet ${id} changed`);
+					// set plug
+					const res1 = await this.emVue.putEmpOutlet("277738", false);
+					this.log.info(`Result ${JSON.stringify(res1)} `);
+					this.setState(id, state.val, true);
+
 				}
 				this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 			}
