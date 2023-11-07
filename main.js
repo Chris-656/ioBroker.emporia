@@ -417,7 +417,7 @@ class Emporia extends utils.Adapter {
 					// set plug
 					const res1 = await this.emVue.putEmpOutlet(277738, state.val);
 					// this.log.info(`Result ${JSON.stringify(res1)} `);
-					this.log.warn(`Switching Outlets is not implemented yet!`);
+					this.log.warn(`Switching Outlets is not implemented yet: ${JSON.stringify(res1)} `);
 					this.setState(id, state.val, true);
 
 				}
