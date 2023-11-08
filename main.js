@@ -413,7 +413,7 @@ class Emporia extends utils.Adapter {
 					this.setState("devices.activated", state.val, true);
 				}
 				if (id.indexOf(".outletOn") !== -1) {
-					this.log.info(`Outlet state ${id} changed`);
+					this.log.debug(`Outlet state ${id} changed`);
 					const stateName = id.split(".").slice(-2)[0];
 					const deviceGid = this.emVue.devices.list.find(x => x.locationProperties.deviceName === stateName).locationProperties.deviceGid;
 
