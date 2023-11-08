@@ -315,7 +315,7 @@ class Emporia extends utils.Adapter {
 					const id = `devices.${dev.locationProperties.deviceName}`;
 
 					const queue = [];
-					queue.push(this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: "deviceGid", type: "number", role: "value", read: true, write: false }, native: {}, }));
+					queue.push(this.setObjectNotExistsAsync(id + ".deviceGid", { type: "state", common: { name: dev.deviceGid, type: "number", role: "value", read: true, write: false }, native: {}, }));
 					queue.push(this.setObjectNotExistsAsync("devices.activated", { type: "state", common: { name: "test", type: "boolean", role: "switch.mode.auto", read: true, write: true }, native: {}, }));
 					queue.push(this.setObjectNotExistsAsync(id + ".model", { type: "state", common: { name: "model", type: "string", role: "info.name", read: true, write: false }, native: {}, }));
 					queue.push(this.setObjectNotExistsAsync(id + ".firmware", { type: "state", common: { name: "firmware", type: "string", role: "info.firmware", read: true, write: false }, native: {}, }));
@@ -408,17 +408,25 @@ class Emporia extends utils.Adapter {
 				if (id.indexOf("devices.activated") !== -1) {
 
 					this.changeSchedule(state.val);	// change Scheduler
-					//this.log.info(`Set scheduler ${(state.val) ? "On" : "Off"}`);
+					// this.log.info(`Set scheduler ${(state.val) ? "On" : "Off"}`);
 
 					this.setState("devices.activated", state.val, true);
 				}
 				if (id.indexOf(".outletOn") !== -1) {
-					this.log.info(`Outlet ${id} changed`);
-					// set plug
-					const res1 = await this.emVue.putEmpOutlet(277738, state.val);
-					// this.log.info(`Result ${JSON.stringify(res1)} `);
-					this.log.warn(`Switching Outlets is not implemented yet: ${JSON.stringify(res1)} `);
-					this.setState(id, state.val, true);
+					this.log.info(`Outlet state ${id} changed`);
+					const stateName = id.split(".").slice(-2)[0];
+					const deviceGid = this.emVue.devices.list.find(x => x.locationProperties.deviceName === stateName).locationProperties.deviceGid;
+
+					// set outlets
+					const res = await this.emVue.putEmpOutlet(deviceGid, state.val);
+					//this.log.info(`status Code ${res}`);
+					if (res === 200) {
+						this.log.info(`Switching Outlet ${stateName} succesfully changed`);
+						this.setState(id, state.val, true);
+					} else {
+						this.log.warn(`Switching Outlet ${stateName} not worked`);
+						//this.setState(id, state.val, false);
+					}
 
 				}
 				this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
