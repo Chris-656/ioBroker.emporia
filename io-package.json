@@ -29,19 +29,6 @@
         "uk": "виправлені питання з графіком",
         "zh-cn": "固定问题"
       },
-      "0.0.11": {
-        "en": "fix stop reading usage",
-        "de": "die verwendung des stop-lesens",
-        "ru": "исправить остановить чтение использование",
-        "pt": "corrigir o uso da leitura",
-        "nl": "stop met gebruik te lezen",
-        "fr": "arrêter de lire l'utilisation",
-        "it": "fix stop lettura utilizzo",
-        "es": "uso de la lectura",
-        "pl": "poprawność",
-        "uk": "фіксувати функцію читання стоп",
-        "zh-cn": "f 停止阅读"
-      },
       "0.0.10": {
         "en": "Init fixes and licence",
         "de": "Init-Fixes und Lizenz",
