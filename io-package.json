@@ -89,9 +89,8 @@
       "power consumption",
       "energy monitor"
     ],
-    "license": "MIT",
+    "tier": 1,
     "platform": "Javascript/Node.js",
-    "main": "main.js",
     "icon": "emporia.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/Chris-656/ioBroker.emporia/main/admin/emporia.png",
