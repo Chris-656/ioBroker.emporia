@@ -66,9 +66,11 @@ Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/
 - initial version
 
 ## License
+"Copyright (c) 2025 Chris <besterquester@live.at>"
+
 MIT License
 
-"Copyright (c) 2023 Chris <besterquester@live.at>"
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
