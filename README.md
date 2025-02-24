@@ -23,6 +23,7 @@ Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/
   ### **WORK IN PROGRESS**
 -->
 ### **WORK IN PROGRESS**
+- update dependencies
 
 ### 0.0.13 (2023-11-06)
 - added outlet support
