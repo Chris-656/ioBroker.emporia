@@ -67,32 +67,6 @@
         "pl": "czyszczenie\nLogging (ang.)",
         "uk": "очищення коду\nПідвищений",
         "zh-cn": "清洁守则\nB. 改进的清算"
-      },
-      "0.0.8": {
-        "en": "changed user credentials",
-        "de": "geänderte benutzerberechtigungen",
-        "ru": "измененные учетные данные пользователя",
-        "pt": "credenciais de usuário alteradas",
-        "nl": "veranderde gebruikersbewijs",
-        "fr": "changé d'identité utilisateur",
-        "it": "credenziali utente modificate",
-        "es": "cambiaron las credenciales de usuario",
-        "pl": "zmienione credentials",
-        "uk": "зміни облікових записів користувачів",
-        "zh-cn": "更换用户证书"
-      },
-      "0.0.7": {
-        "en": "added daily usage for monitoring\nchanged state structure",
-        "de": "zusätzliche tägliche nutzung für die überwachung\ngeänderte zustandsstruktur",
-        "ru": "добавлено ежедневное использование для мониторинга\nизменена структура государства",
-        "pt": "uso diário adicionado para monitoramento\nestrutura de estado alterada",
-        "nl": "voegde dagelijks gebruik toe voor monitoren\nveranderde staatsstructuur",
-        "fr": "utilisation quotidienne supplémentaire pour la surveillance\nmodification de la structure de l ' état",
-        "it": "uso quotidiano aggiunto per il monitoraggio\ncambiato struttura dello stato",
-        "es": "uso diario añadido para la vigilancia\ncambio de estructura estatal",
-        "pl": "dodać codzienne wykorzystanie monitorowania\nstruktura państwowa",
-        "uk": "додано щоденне використання для моніторингу\nзмінена структура стану",
-        "zh-cn": "监测日增\nb. 改变国家结构"
       }
     },
     "titleLang": {
@@ -146,12 +120,12 @@
     },
     "dependencies": [
       {
-        "js-controller": ">=3.3.22"
+        "js-controller": ">=5.0.19"
       }
     ],
     "globalDependencies": [
       {
-        "admin": ">=5.0.0"
+        "admin": ">=7.4.10"
       }
     ]
   },
