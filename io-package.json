@@ -89,19 +89,6 @@
       "power consumption",
       "energy monitor"
     ],
-    "licenseInformation": {
-      "en": "MIT",
-      "de": "MIT",
-      "ru": "MIT",
-      "pt": "MIT",
-      "nl": "MIT",
-      "fr": "MIT",
-      "it": "MIT",
-      "es": "MIT",
-      "pl": "MIT",
-      "uk": "MIT",
-      "zh-cn": "MIT"
-    },
     "license": "MIT",
     "tier": 1,
     "platform": "Javascript/Node.js",
