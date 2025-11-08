@@ -102,7 +102,10 @@
       "power consumption",
       "energy monitor"
     ],
-    "license": "MIT",
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
     "tier": 1,
     "platform": "Javascript/Node.js",
     "icon": "emporia.png",
