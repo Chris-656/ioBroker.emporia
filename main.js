@@ -13,7 +13,7 @@ const moment = require("moment");          // https://github.com/node-schedule/n
 //let busy = false;
 
 // Load your modules here, e.g.:
-// const fs = require("fs");
+// const fs = require("node:fs");
 const EmVue = require("./lib/EmVue.js");
 
 class Emporia extends utils.Adapter {
