@@ -29,7 +29,7 @@ systemDictionary = {
 		"zh-cn": "选项1"
 	},
 	"password": {
-		"en": "Passwort",
+		"en": "Password",
 		"de": "Kennwort",
 		"ru": "Пароль",
 		"pt": "Senha",
