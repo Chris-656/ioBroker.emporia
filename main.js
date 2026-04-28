@@ -16,6 +16,10 @@ const moment = require("moment");          // https://github.com/node-schedule/n
 // const fs = require("fs");
 const EmVue = require("./lib/EmVue.js");
 
+function sanitizeId(s) {
+	return String(s).replace(/[^a-zA-Z0-9_-]/g, "_");
+}
+
 class Emporia extends utils.Adapter {
 
 	/**
@@ -161,39 +165,39 @@ class Emporia extends utils.Adapter {
 
 	async createUsageStates(devices, stateName = "live") {
 		try {
-			//this.log.debug(`devices Usage ${JSON.stringify(devices)}`);
+			const date = moment().utc().subtract(1, "days").startOf("day").unix() * 1000;
+			const unit = this.config.unitoutput === 1 ? "W" : "kW";
+
+			const writeUsage = (deviceName, channelName, rawUsage) => {
+				if (rawUsage == null || !channelName) return;
+				const value = (stateName === "live") ? this.emVue.calcLiveKilowatt(rawUsage, this.config.unitoutput) : rawUsage;
+				const channelId = sanitizeId(channelName);
+				const stateId = (stateName === "live")
+					? `devices.${deviceName}.${channelId}`
+					: `usage.${stateName}.${deviceName}.${channelId}`;
+				this.setObjectNotExistsAsync(stateId, { type: "state", common: { name: channelName, type: "number", role: "value.power", read: true, write: false, unit }, native: {}, }).then(() => {
+					if (stateName === "live")
+						this.setState(stateId, value, true);
+					else
+						this.setState(stateId, { val: value, ack: true, ts: date });
+				});
+			};
 
 			devices.forEach(device => {
-				const name = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid).locationProperties.deviceName;
+				const parent = this.emVue.devices.list.find(x => x.deviceGid === device.deviceGid);
+				const name = parent ? parent.locationProperties.deviceName : `device_${device.deviceGid}`;
 
 				device.channelUsages.forEach(channel => {
+					this.log.debug(`device:${name} channel:${channel.name} usage: ${this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput).toFixed(2)} ${unit}`);
+					writeUsage(name, channel.name, channel.usage);
 
-					this.log.info(`device:${name} channel:${channel.name} usage: ${this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput).toFixed(2)} Watt`);
-					const kiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(channel.usage, this.config.unitoutput) : channel.usage;
-					const date = moment().utc().subtract(1, "days").startOf("day").unix() * 1000;
-
-					const queue = [];
-					queue.push(this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}`, { type: "state", common: { name: channel.name, type: "number", role: "value.power", read: true, write: false }, native: {}, }));
-					Promise.all(queue).then(() => {
-						if (stateName === "live")
-							this.setState(`usage.${stateName}.${name}.${channel.name}`, kiloWatt, true);
-						else
-							this.setState(`usage.${stateName}.${name}.${channel.name}`, { val: kiloWatt, ack: true, ts: date });
-					});
-
-					// only one nested device implemented yet no recursion
-					if (channel.nestedDevices.length > 0) {
+					if (channel.nestedDevices && channel.nestedDevices.length > 0) {
 						channel.nestedDevices.forEach(nestedDevice => {
-							const devname = this.emVue.devices.list.find(x => x.deviceGid === nestedDevice.deviceGid).locationProperties.deviceName;
-							const nkiloWatt = (stateName === "live") ? this.emVue.calcLiveKilowatt(nestedDevice.channelUsages[0].usage, this.config.unitoutput) : nestedDevice.channelUsages[0].usage;
-							this.log.info(`... device:${name} channel:${channel.name}->.${devname} usage: ${nkiloWatt.toFixed(2)} Watt`);
-							const queue = [];
-							queue.push(this.setObjectNotExistsAsync(`usage.${stateName}.${name}.${channel.name}.${devname}`, { type: "state", common: { name: devname, type: "number", role: "value.power", read: true, write: false }, native: {}, }));
-							Promise.all(queue).then(() => {
-								if (stateName === "live")
-									this.setState(`usage.${stateName}.${name}.${channel.name}.${devname}`, nkiloWatt, true);
-								else
-									this.setState(`usage.${stateName}.${name}.${channel.name}.${devname}`, { val: nkiloWatt, ack: true, ts: date });
+							const nestedParent = this.emVue.devices.list.find(x => x.deviceGid === nestedDevice.deviceGid);
+							const nestedName = nestedParent ? nestedParent.locationProperties.deviceName : `device_${nestedDevice.deviceGid}`;
+							nestedDevice.channelUsages.forEach(nestedChannel => {
+								this.log.debug(`... device:${nestedName} channel:${nestedChannel.name} usage: ${this.emVue.calcLiveKilowatt(nestedChannel.usage, this.config.unitoutput).toFixed(2)} ${unit}`);
+								writeUsage(nestedName, nestedChannel.name, nestedChannel.usage);
 							});
 						});
 					}
@@ -325,6 +329,17 @@ class Emporia extends utils.Adapter {
 						// `outlets.${outlet.deviceGid}.outletOn`
 						queue.push(this.setObjectNotExistsAsync(id + ".outletOn", { type: "state", common: { name: "outletOn", type: "boolean", role: "level", read: true, write: true }, native: {}, }));
 						queue.push(this.setObjectNotExistsAsync(id + ".loadGid", { type: "state", common: { name: "loadGid", type: "number", role: "value", read: true, write: false }, native: {}, }));
+					}
+
+					if (dev.devices && dev.devices.length > 0) {
+						dev.devices.forEach(subDev => {
+							if (!subDev.channels) return;
+							subDev.channels.forEach(ch => {
+								if (!ch.name) return;
+								const channelName = sanitizeId(ch.name);
+								queue.push(this.setObjectNotExistsAsync(`${id}.${channelName}`, { type: "state", common: { name: ch.name, type: "number", role: "value.power", read: true, write: false, unit: this.config.unitoutput === 1 ? "W" : "kW" }, native: { channelNum: ch.channelNum, channelMultiplier: ch.channelMultiplier, channelType: ch.type }, }));
+							});
+						});
 					}
 
 					Promise.all(queue).then(() => {

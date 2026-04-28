@@ -1,8 +1,11 @@
 {
   "common": {
     "name": "emporia",
-    "version": "0.1.0",
+    "version": "0.0.14",
     "news": {
+      "0.0.14": {
+        "en": "expose nested device channels under the parent device, fix adapter crash on non-JSON API responses, correct English password label"
+      },
       "0.1.0": {
         "en": "update dependencies",
         "de": "aktualisierung der abhängigkeiten",
