@@ -66,6 +66,8 @@ Used the API documentation from [here](https://github.com/magico13/PyEmVue/blob/
 ### 0.0.2 (2022-12-04)
 - initial version
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 Copyright (c) 2025 Chris <besterquester@live.at>
 
